@@ -1,0 +1,72 @@
+@import '../index.scss';
+
+.input-field {
+  border: 1px solid $border;
+  background-color: $bg-card;
+  color: $text-primary;
+  padding: $input-padding;
+  border-radius: $radius;
+  outline: none;
+
+  &:focus {
+    border-color: $text-accent;
+    box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.3);
+  }
+}
+
+.btn-primary {
+  background-color: $text-accent;
+  color: #1a202c;
+  padding: $btn-padding;
+  border-radius: $radius;
+  font-weight: 500;
+  transition: 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.oauth-btn {
+  display: flex;
+  
+  cursor: pointer;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid $border;
+  padding: $btn-padding;
+  border-radius: $radius;
+  color: $text-primary;
+  background-color: $bg-card;
+  transition: 0.2s;
+
+  &:hover {
+    background-color: lighten($bg-card, 5%);
+  }
+
+  img {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+.form-card {
+  background-color: $bg-card;
+  padding: 2.5rem;
+  border-radius: $radius;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+.animate-shake {
+  animation: shake 0.3s ease-in-out;
+  border-color: #f87171;
+}
+
+
