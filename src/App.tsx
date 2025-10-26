@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import './App.scss';
 import './index.scss'
 import { useAuth } from './context/AuthProvider';
+import HomeIndex from './pages/home';
 
 function App() {
   const [user, setUser] = useState<{ fullName: string } | null>(null);
@@ -27,8 +28,8 @@ function App() {
   }, [isAuthenticated]);
 
   return (
-    <div className="min-h-screen bg-[#1a202c] flex items-center justify-center text-white text-2xl">
-      {isAuthenticated ? <>Hello, {user? user.fullName : 'abracadabra'}!</> : <>Hello</>}
+    <div className="bg-background-light dark:bg-background-dark">
+      <HomeIndex/>
     </div>
   );
 }

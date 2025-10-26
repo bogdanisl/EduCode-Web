@@ -126,9 +126,15 @@ function Login() {
         </div>
 
         <p className="text-center text-[#a0aec0] text-sm mt-6">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <a href="/auth/register" className="text-[#63b3ed] font-medium hover:underline">
             Register
+          </a>
+        </p>
+        <p className="text-center text-[#a0aec0] text-sm mt-6">
+          Forgot password?{" "}
+          <a href="/auth/reset" className="text-[#63b3ed] font-medium hover:underline">
+            Reset
           </a>
         </p>
       </div>

@@ -1,10 +1,22 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
 
+export const UserRole = {
+  ADMIN: 'admin',
+  USER: 'user',
+  PRO: 'pro',
+  TESTER: 'tester',
+  GUEST: 'guest'
+} as const
+export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+
 
 export interface User {
   id: number
   fullName: string
   email: string
+  lives: number
+  lives_reset_at: number
+  role: UserRole
   [key: string]: any
 }
 
@@ -12,6 +24,7 @@ export interface User {
 interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
+  role: UserRole
   login: (userData: User) => void
   logout: () => Promise<void>
 }
@@ -33,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = (userData: User) => {
     console.log('login')
     setUser(userData)
+    console.log(userData)
     localStorage.setItem("user", JSON.stringify(userData))
   }
 
@@ -50,8 +64,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  if(user)
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, role:user.role }}>
+      {children}
+    </AuthContext.Provider>
+  )
+  else
+    return (
+    <AuthContext.Provider value={{ user, isAuthenticated: false, login, logout, role:'guest' }}>
       {children}
     </AuthContext.Provider>
   )
