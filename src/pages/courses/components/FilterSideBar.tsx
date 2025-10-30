@@ -25,7 +25,7 @@ export default function FiltersSidebar() {
           <div className="flex flex-col gap-2 border-t border-white/10 pt-4">
             <h3 className="font-semibold text-white">Topic</h3>
             <div className="flex flex-col gap-2 pl-1">
-              {['Python', 'JavaScript', 'UI/UX Design', 'Data Science'].map((topic, i) => (
+              {['Python', 'UI/UX Design', 'Data Science'].map((topic, i) => (
                 <label key={topic} className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"

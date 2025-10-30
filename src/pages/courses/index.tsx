@@ -24,12 +24,10 @@ export default function CoursesIndex() {
                     headers: { 'Content-Type': 'application/json' },
                 })
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`)
+                    throw new Error(`HTTP error! Status:  ${response.status}`)
                 }
 
-                const data = await response.json() // Парсим JSON из ответа
-
-                // Проверяем, что data — это массив
+                const data = await response.json()
                 if (Array.isArray(data)) {
                     setCourses(data)
                 } else {
