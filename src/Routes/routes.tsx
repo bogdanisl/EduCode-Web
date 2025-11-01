@@ -6,6 +6,8 @@ import ResetPassword from "../auth/Reset";
 import CoursesIndex from "../pages/courses";
 import NotFound from "../pages/notFound";
 import AddCoursePage from "../pages/admin/course/Create";
+import DashboardIndex from "../pages/user/dashboard";
+import Course from "../pages/courses/[id]";
 
 
 export default function AppRoutes() {
@@ -18,6 +20,8 @@ export default function AppRoutes() {
       <Route path="auth/reset" element={<ResetPassword/>}></Route>
       <Route path="*" element={<NotFound />} />
       <Route path="/admin/course/create" element={<AddCoursePage />} />
+      <Route path="/dashboard" element={<DashboardIndex />} />
+      <Route path="/courses/:id" element={<Course />} />
     </Routes>
   );
 }

@@ -9,9 +9,11 @@ function App() {
   const {isAuthenticated,logout} = useAuth()
 
   useEffect( () => {
+    if(isAuthenticated){
+      
     fetch('/api/v1/auth/me', {
     method: 'GET',
-    credentials: 'include', // 👈 ключевая часть
+    credentials: 'include'
     }).then((res) => {
         if (!res.ok) 
           {
@@ -25,6 +27,8 @@ function App() {
         logout()
         setUser(null)
       });
+      
+    }
   }, [isAuthenticated]);
 
   return (

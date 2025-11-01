@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthProvider";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   const toggleProfileMenu = () => setProfileMenuOpen(!profileMenuOpen);
@@ -12,7 +12,6 @@ const Header = () => {
     logout();
     setProfileMenuOpen(false);
   };
-
   return (
     <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-b-[#283039] px-4 sm:px-10 lg:px-40 py-3 bg-background-light dark:bg-background-dark">
       {/* Left: Logo + Title + Nav */}
@@ -89,6 +88,8 @@ const Header = () => {
             />
             {profileMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2 z-50">
+                <p className="block px-4 py-2 text-gray-800 dark:text-gray-200">{user?.fullName}</p>
+                <br className="bg-red-500"/>
                 <Link to="/profile" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</Link>
                 <Link to="/settings" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Settings</Link>
                 <Link to="/help" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Help</Link>

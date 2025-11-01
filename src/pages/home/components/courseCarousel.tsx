@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import type { Course } from '../../../types/interfaces/Course';
-import CourseCard from '../../courses/components/CourseCard';
+import CourseCard from '../../../components/CourseCard';
 
 
 const CoursesCarousel: React.FC = () => {
@@ -11,7 +11,7 @@ const CoursesCarousel: React.FC = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch(`/api/courses/latest`, {
+        const response = await fetch(`/api/course?limit=4`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         })

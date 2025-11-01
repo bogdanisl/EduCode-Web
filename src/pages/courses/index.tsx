@@ -17,9 +17,10 @@ export default function CoursesIndex() {
     const { role } = useAuth();
     
     useEffect(() => {
+        //console.log(loading,error)
         const fetchCourses = async () => {
             try {
-                const response = await fetch(`/api/courses/latest`, {
+                const response = await fetch(`/api/course?limit=9`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                 })
