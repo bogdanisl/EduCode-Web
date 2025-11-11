@@ -7,7 +7,8 @@ import CoursesIndex from "../pages/courses";
 import NotFound from "../pages/notFound";
 import AddCoursePage from "../pages/admin/course/Create";
 import DashboardIndex from "../pages/user/dashboard";
-import Course from "../pages/courses/[id]";
+import LessonPage from "../pages/lesson/[id]";
+import CoursePage from "../pages/courses/[id]";
 
 
 export default function AppRoutes() {
@@ -21,7 +22,8 @@ export default function AppRoutes() {
       <Route path="*" element={<NotFound />} />
       <Route path="/admin/course/create" element={<AddCoursePage />} />
       <Route path="/dashboard" element={<DashboardIndex />} />
-      <Route path="/courses/:id" element={<Course />} />
+      <Route path="/courses/:id" element={<CoursePage />} />
+      <Route path="/lesson/:id" element={<LessonPage />} />
     </Routes>
   );
 }

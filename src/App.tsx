@@ -4,6 +4,7 @@ import './index.scss'
 import { useAuth } from './context/AuthProvider';
 import HomeIndex from './pages/home';
 
+
 function App() {
   const [user, setUser] = useState<{ fullName: string } | null>(null);
   const {isAuthenticated,logout} = useAuth()

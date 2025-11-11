@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import type { Course } from '../../../types/interfaces/Course';
 import CourseCard from '../../../components/CourseCard';
+import type { UserProgress } from '../../../types/interfaces/UserProgress';
 
-
-const CoursesCarousel: React.FC = () => {
+interface CoursesCarouselProps {
+  category?: string; // Опциональный параметр категории
+  coursesRef?: Course[];
+  progressesRef?: UserProgress[];
+}
+const CoursesCarousel: React.FC<CoursesCarouselProps> = ({ category, coursesRef, progressesRef }) => {
   const [courses, setCourses] = useState<Course[]>([])
+  const [progresses, setProgresses] = useState<UserProgress[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch(`/api/course?limit=4`, {
+        const response = await fetch(`/api/course?limit=4${category ? `&category=${category}` : ''}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         })
@@ -35,7 +41,23 @@ const CoursesCarousel: React.FC = () => {
       }
     }
 
-    fetchCourses()
+    if (!coursesRef && !progressesRef) {
+      fetchCourses()
+    }
+    else {
+      if (coursesRef) {
+        setCourses(coursesRef)
+      }
+      else if (progressesRef) {
+        const coursesFromProgress = progressesRef.map(p => p.course);
+        setProgresses(progressesRef)
+        setCourses(coursesFromProgress);
+        setLoading(false);
+      }
+      console.log({ courses })
+      setLoading(false)
+    }
+
   }, [])
 
   if (loading) {
@@ -46,6 +68,35 @@ const CoursesCarousel: React.FC = () => {
     return <div className="w-full px-6 py-8 text-center text-red-500">{error}</div>
   }
 
+  if (progressesRef) {
+    return(
+    <div className="w-full px-6 py-8">
+      <div
+        className="
+          grid 
+          gap-6
+          sm:grid-cols-1 
+          md:grid-cols-2 
+          lg:grid-cols-2
+          xl:grid-cols-3
+          2xl:grid-cols-3
+        "
+      >
+        {progresses.length > 0 ? (
+          progresses.map((progress) => (
+            <CourseCard
+              key={progress.courseId}
+              course={progress.course}
+              progress={progress.progressPercent}
+            />
+          ))
+        ) : (
+          <div className="w-full text-center">No courses available</div>
+        )}
+      </div>
+    </div>
+    )
+  }
   return (
     <div className="w-full px-6 py-8">
       <div
