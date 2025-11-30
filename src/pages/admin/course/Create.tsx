@@ -4,6 +4,7 @@ import { useAuth } from "../../../context/AuthProvider";
 import NotFound from "../../notFound";
 import { useNavigate } from "react-router-dom";
 import type { Category } from "../../../types/interfaces/CourseCategory";
+import CourseCurriculumEditor from "../components/LessonsEditor";
 
 
 
@@ -214,6 +215,8 @@ export default function AddCoursePage() {
                   </div>
                 </div>
               </div>
+
+              <CourseCurriculumEditor/>
 
               {/* Course Media */}
               <div className="space-y-4 rounded-xl border border-gray-200 dark:border-white/10 bg-white/5 p-6">

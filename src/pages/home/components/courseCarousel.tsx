@@ -87,7 +87,7 @@ const CoursesCarousel: React.FC<CoursesCarouselProps> = ({ category, coursesRef,
             <CourseCard
               key={progress.courseId}
               course={progress.course}
-              progress={progress.progressPercent}
+              progress={progress}
             />
           ))
         ) : (

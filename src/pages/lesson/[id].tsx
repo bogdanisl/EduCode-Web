@@ -1,323 +1,255 @@
+// LessonPage.tsx
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import Editor from "@monaco-editor/react";
 import type { Lesson } from "../../types/interfaces/Lesson";
+import CodeConsole from "./components/CodeConsole";
+import TaskArea from "./components/TaskArea";
 
 const LessonPage: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
-    const [lesson, setLesson] = useState<Lesson | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
-    const [code, setCode] = useState("// Write your code here\n");
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitStatus, setSubmitStatus] = useState<{ correct: boolean } | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
+  const [code, setCode] = useState("// Write your code here\n");
 
-    const [leftWidth, setLeftWidth] = useState(380);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const resizing = useRef<{ left?: boolean }>({});
+  // Состояние отправки и результата
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{ correct: boolean } | null>(null);
+  const [consoleOutput, setConsoleOutput] = useState<string>("");
+  const [output, setOutput] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
-    const runCode = async (): Promise<string> => {
-        const userCode = code; // то, что в редакторе
+  // Resize
+  const [leftWidth, setLeftWidth] = useState(380);
+  const [bottomHeight, setBottomHeight] = useState(250);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const resizingRef = useRef<{ left: boolean; bottom: boolean }>({ left: false, bottom: false });
 
-        // Оборачиваем код пользователя в функцию, которая перехватывает console.log
-        const wrappedCode = `
-    (function() {
-      const logs = [];
-      const originalLog = console.log;
-      console.log = (...args) => {
-        logs.push(args.map(arg => String(arg)).join(' '));
-      };
-
+  // === Загрузка урока ===
+  useEffect(() => {
+    const fetchLesson = async () => {
       try {
-        ${userCode}
+        const res = await fetch(`/api/lesson/${id}`, { credentials: "include" });
+        if (!res.ok) throw new Error("Failed to load lesson");
+        const data = await res.json();
+        setLesson(data.lesson);
       } catch (err) {
-        logs.push("Error: " + err.message);
+        console.error(err);
       } finally {
-        console.log = originalLog;
+        setLoading(false);
+      }
+    };
+    fetchLesson();
+  }, [id]);
+
+
+  const startLeftResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    resizingRef.current.left = true;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
+
+  const startBottomResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    resizingRef.current.bottom = true;
+    document.body.style.cursor = "row-resize";
+    document.body.style.userSelect = "none";
+  };
+  useEffect(() => {
+  function onMouseMove(e: MouseEvent) {
+    // === LEFT RESIZE ===
+    if (resizingRef.current.left) {
+      const newWidth = e.clientX; // ← фикс!
+      if (newWidth > 240 && newWidth < window.innerWidth - 300) {
+        setLeftWidth(newWidth);
+      }
+    }
+
+    // === BOTTOM RESIZE ===
+    if (resizingRef.current.bottom && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const newHeight = rect.bottom - e.clientY;
+      if (newHeight > 120 && newHeight < rect.height - 120) {
+        setBottomHeight(newHeight);
+      }
+    }
+  }
+
+  function onMouseUp() {
+    if (resizingRef.current.left || resizingRef.current.bottom) {
+      resizingRef.current.left = false;
+      resizingRef.current.bottom = false;
+      document.body.style.cursor = "default";
+      document.body.style.userSelect = "auto";
+    }
+  }
+
+  document.addEventListener("mousemove", onMouseMove);
+  document.addEventListener("mouseup", onMouseUp);
+
+  return () => {
+    document.removeEventListener("mousemove", onMouseMove);
+    document.removeEventListener("mouseup", onMouseUp);
+  };
+}, []);
+
+  // === ЕДИНЫЙ ОБРАБОТЧИК ОТПРАВКИ ===
+  const handleSubmit = async () => {
+    if (!lesson || !task) return;
+
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+    setConsoleOutput("");
+    setOutput("");
+    setError(null);
+
+    try {
+      let body: any = {};
+
+      if (task.type === "quiz") {
+        const selected = document.querySelector(
+          `input[name="task-${task.id}"]:checked`
+        ) as HTMLInputElement | null;
+        if (!selected) {
+          alert("Выбери вариант ответа!");
+          setIsSubmitting(false);
+          return;
+        }
+        body.selectedOptionId = Number(selected.value);
       }
 
-      return logs.join('\\n');
-    })();
-  `;
+      if (task.type === "text") {
+        // Для текстовых задач можно добавить инпут, но пока пропустим
+        // или используй prompt() для теста
+      }
 
-        // Выполняем в изолированном контексте
-        const func = new Function(wrappedCode);
-        const output = func();
+      if (task.type === "code") {
+        body.code = code;
+      }
 
-        return output || "";
-    };
+      const res = await fetch(`/api/task/${task.id}/check`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
 
-    // === FETCH LESSON ===
-    useEffect(() => {
-        const fetchLesson = async () => {
-            try {
-                const res = await fetch(`/api/lesson/${id}`, { credentials: "include" });
-                if (!res.ok) throw new Error("Failed to load lesson");
-                const data = await res.json();
-                setLesson(data.lesson);
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchLesson();
-    }, [id]);
+      const data = await res.json();
 
-    // === RESIZE EVENTS ===
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (!containerRef.current || !resizing.current.left) return;
-            const rect = containerRef.current.getBoundingClientRect();
-            const newWidth = e.clientX - rect.left;
-            setLeftWidth(Math.min(Math.max(newWidth, 260), rect.width - 400));
-        };
+      // Универсальная обработка ответа
+      setSubmitStatus({ correct: data.correct });
 
-        const handleMouseUp = () => {
-            resizing.current = {};
-            document.body.style.cursor = "default";
-            document.body.style.userSelect = "auto";
-        };
+      if (task.type === "code") {
+        setConsoleOutput(data.console || "");
+        setOutput(data.output || "");
+        setError(data.error || null);
+      }
 
-        document.addEventListener("mousemove", handleMouseMove);
-        document.addEventListener("mouseup", handleMouseUp);
-        return () => {
-            document.removeEventListener("mousemove", handleMouseMove);
-            document.removeEventListener("mouseup", handleMouseUp);
-        };
-    }, []);
+      if (res.ok && data.correct) {
+        setTimeout(() => {
+          if (currentTaskIndex < lesson.tasks.length - 1) {
+            setCurrentTaskIndex(i => i + 1);
+            setCode("// Write your code here\n");
+            setConsoleOutput("");
+            setOutput("");
+            setError(null);
+            setSubmitStatus(null);
+          }
+        }, 1200);
+      }
+    } catch (err) {
+      console.error(err);
+      setSubmitStatus({ correct: false });
+      setError("Network error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    const handleSubmit = async () => {
-        if (!task) return;
+  if (loading) return <div className="text-white text-xl p-10">Loading...</div>;
+  if (!lesson) return null;
 
-        setIsSubmitting(true);
-        setSubmitStatus(null);
+  const task = lesson.tasks[currentTaskIndex];
+  const isCode = task.type === "code";
 
-        try {
-            let body: any = {};
+  return (
+    <div ref={containerRef} className="flex flex-col h-screen bg-[#0e1117] text-white overflow-hidden">
 
-            if (task.type === "quiz") {
-                const selected = document.querySelector(
-                    `input[name="task-${task.id}"]:checked`
-                ) as HTMLInputElement;
-                if (!selected) {
-                    alert("Выбери вариант ответа!");
-                    setIsSubmitting(false);
-                    return;
-                }
-                body.selectedOptionId = Number(selected.value);
-            }
-
-            if (task.type === "code") {
-                const output = await runCode();
-                console.log(output)
-                body.output = output; // Здесь потом будет настоящий вывод, пока отправляем код
-                // В будущем: запустишь код и отправишь реальный console.log
-            }
-
-            if (task.type === "text") {
-                // В будущем — текстовое поле ввода
-                body.answer = "твой текст"; // пока заглушка
-            }
-
-            const res = await fetch(`/api/task/${task.id}/check`, {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
-            });
-
-            const data = await res.json();
-
-            if (res.ok && data.correct === true) {
-                setSubmitStatus({ correct: true });
-                // Автоматический переход через 1 секунду
-                setTimeout(() => {
-                    if (lesson && currentTaskIndex < lesson.tasks.length - 1) {
-                        setCurrentTaskIndex((i) => i + 1);
-                        setSubmitStatus(null);
-                        setCode("// Write your code here\n"); // сброс кода
-                    }
-                }, 1000);
-            } else {
-                setSubmitStatus({ correct: false });
-            }
-        } catch (err) {
-            console.error(err);
-            setSubmitStatus({ correct: false });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-
-    const startLeftResize = (e: React.MouseEvent) => {
-        e.preventDefault();
-        resizing.current.left = true;
-        document.body.style.cursor = "col-resize";
-        document.body.style.userSelect = "none";
-    };
-
-    if (loading) return <div className="text-white text-xl p-10">Loading...</div>;
-    if (!lesson) return null;
-
-    const task = lesson.tasks[currentTaskIndex];
-    const isQuiz = task.type === "quiz";
-    const isCode = task.type === "code";
-    const isText = task.type === "text";
-
-    return (
-        <div
-            ref={containerRef}
-            className="flex flex-col h-screen bg-[#0e1117] text-white overflow-hidden"
-        >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 px-6 py-3 bg-[#16181f]">
-                <h1 className="text-xl font-bold">{lesson.title}</h1>
-                <div className="text-sm text-gray-400">
-                    Task {currentTaskIndex + 1} / {lesson.tasks.length}
-                </div>
-            </div>
-
-            <div className="flex flex-1 overflow-hidden">
-                {/* LEFT PANEL */}
-                <div
-                    style={{ width: `${leftWidth}px` }}
-                    className="border-r border-white/10 p-6 bg-[#12151b] overflow-y-auto"
-                >
-                    <h2 className="text-2xl font-bold mb-4">{lesson.title}</h2>
-                    <p className="text-gray-300 mb-6">{lesson.description}</p>
-                    <div className="text-sm text-gray-400">
-                        Module: <span className="text-white">{lesson.module.title}</span>
-                    </div>
-
-                    {isCode && (
-                        <>
-                            <br></br>
-                            <h2 className="text-2xl font-bold mb-4">{task.title}</h2>
-                            <p className="text-gray-300 mb-6">{task.description}</p>
-                        </>
-                    )}
-                </div>
-
-                {/* RESIZER */}
-                <div
-                    onMouseDown={startLeftResize}
-                    className="w-1 bg-transparent hover:bg-primary/70 cursor-col-resize transition-all"
-                />
-
-                {/* RIGHT CONTENT */}
-                <div className="flex-1 flex flex-col overflow-hidden">
-                    {/* Task Header */}
-                    <div className="border-b border-white/10 px-6 py-3 bg-[#16181f]">
-                        {isCode ? (
-                            <div className="text-sm text-gray-400">
-
-                                <span className="text-white font-bold">
-                                    {task.language || "TypeScript"}
-                                </span>
-                            </div>
-                        ) : (
-                            <>
-                                <h3 className="font-bold text-lg">{task.title}</h3>
-                                <p className="text-gray-400 text-sm">{task.description}</p>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Task Content */}
-                    <div className="flex-1 overflow-auto p-6 bg-[#1e1e1e]">
-                        {isQuiz && (
-                            <div className="space-y-4">
-                                {task.options?.map((opt) => (
-                                    <label
-                                        key={opt.id}
-                                        className="block p-4 bg-[#16181f] rounded-lg border border-white/10 hover:border-primary/50 cursor-pointer transition-colors"
-                                    >
-                                        <input
-                                            type="radio"
-                                            name={`task-${task.id}`}
-                                            value={opt.id}
-                                            className="mr-3 accent-primary"
-                                        />
-                                        {opt.text}
-                                    </label>
-                                ))}
-                            </div>
-                        )}
-
-                        {isCode && (
-                            <Editor
-                                height="100%"
-                                defaultLanguage={task.language || "typescript"}
-                                value={task.startCode || code}
-                                onChange={(value) => setCode(value || "")}
-                                theme="vs-dark"
-                                options={{
-                                    minimap: { enabled: false },
-                                    fontSize: 15,
-                                    lineNumbers: "on",
-                                    scrollBeyondLastLine: false,
-                                    automaticLayout: true,
-                                    padding: { top: 20, bottom: 20 },
-                                }}
-                            />
-                        )}
-
-                        {isText && (
-                            <div className="prose prose-invert max-w-none">
-                                <p>{task.description}</p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Footer */}
-                    {/* Footer */}
-                    <div className="border-t border-white/10 flex justify-between px-6 py-3 bg-[#16181f]">
-                        <button
-                            disabled={currentTaskIndex === 0}
-                            onClick={() => setCurrentTaskIndex((i) => i - 1)}
-                            className="px-5 py-2 bg-white/10 rounded-lg hover:bg-white/20 disabled:opacity-50 transition"
-                        >
-                            Previous
-                        </button>
-
-                        <div className="flex gap-4 items-center">
-                            {/* Сообщение о результате */}
-                            {submitStatus && (
-                                <span
-                                    className={`font-bold text-lg ${submitStatus.correct ? "text-green-400" : "text-red-400"
-                                        }`}
-                                >
-                                    {submitStatus.correct ? "Правильно!" : "Неправильно, попробуй ещё!"}
-                                </span>
-                            )}
-
-                            {/* Кнопка отправки */}
-                            <button
-                                onClick={handleSubmit}
-                                disabled={isSubmitting}
-                                className={`px-6 py-2.5 rounded-lg font-bold transition ${isSubmitting
-                                    ? "bg-white/20 cursor-not-allowed"
-                                    : "bg-primary hover:bg-primary/90"
-                                    }`}
-                            >
-                                {isSubmitting ? "Проверка..." : isCode ? "Run Code" : "Submit"}
-                            </button>
-                        </div>
-
-                        <button
-                            disabled={currentTaskIndex === lesson.tasks.length - 1 || !submitStatus?.correct}
-                            onClick={() => setCurrentTaskIndex((i) => i + 1)}
-                            className="px-5 py-2 bg-primary hover:bg-primary/90 rounded-lg font-bold disabled:opacity-50 transition"
-                        >
-                            Next
-                        </button>
-                    </div>
-                </div>
-            </div>
+      {/* 1. Шапка */}
+      <div className="flex items-center justify-between border-b border-white/10 px-6 py-3 bg-[#16181f]">
+        <h1 className="text-xl font-bold">{lesson.title}</h1>
+        <div className="text-sm text-gray-400">Task {currentTaskIndex + 1} / {lesson.tasks.length}</div>
+      </div>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Левая панель — оставляем тут (как ты просил) */}
+        <div style={{ width: `${leftWidth}px` }} className="border-r border-white/10 p-6 bg-[#12151b] overflow-y-auto">
+          <h2 className="text-2xl font-bold mb-4">{lesson.title}</h2>
+          <p className="text-gray-300 mb-6">{lesson.description}</p>
+          <div className="text-sm text-gray-400 mb-6">
+            Module: <span className="text-white">{lesson.module.title}</span>
+          </div>
+          {(isCode || task.type === "quiz") && (
+            <>
+              <h3 className="text-xl font-bold mb-3">{task.title}</h3>
+              <div className="text-gray-300 prose prose-invert" dangerouslySetInnerHTML={{ __html: task.description }} />
+            </>
+          )}
         </div>
-    );
-};
+
+        {/* Ресайзер слева */}
+        <div
+          onMouseDown={startLeftResize}
+          className="w-1 bg-transparent hover:bg-white/20 cursor-col-resize"
+        ></div>
+        {/* Правая часть */}
+        <div className="flex-1 flex flex-col">
+          {/* 2. Основная область задачи */}
+          <TaskArea
+            task={task}
+            code={task.startCode}
+            onCodeChange={setCode}
+            isSubmitting={isSubmitting}
+            onSubmit={handleSubmit}
+          />
+
+          {/* 3. Консоль только для кода */}
+          {isCode && (
+            <>
+              <div
+                onMouseDown={startBottomResize}
+                className="h-1 bg-transparent hover:bg-white/20 cursor-row-resize"
+              ></div>              
+              <CodeConsole consoleOutput={consoleOutput} output={output} error={error} height={bottomHeight} correctOutput={task.correctOutput || ''} />
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Футер */}
+      <div className="border-t border-white/10 px-6 py-3 bg-[#16181f] flex items-center justify-between">
+        <button disabled={currentTaskIndex === 0} onClick={() => setCurrentTaskIndex(i => i - 1)}
+          className="px-6 py-2.5 bg-white/10 rounded-lg hover:bg-white/20 disabled:opacity-50 font-medium">
+          Previous
+        </button>
+
+        {submitStatus && (
+          <span className={`font-bold text-lg px-4 py-2 rounded-lg ${submitStatus.correct ? "text-green-400 bg-green-500/10" : "text-red-400 bg-red-500/10"}`}>
+            {submitStatus.correct ? "Correct!" : "Try again!"}
+          </span>
+        )}
+
+        <button
+          disabled={currentTaskIndex === lesson.tasks.length - 1 || !submitStatus?.correct}
+          onClick={() => setCurrentTaskIndex(i => i + 1)}
+          className="px-6 py-2.5 bg-primary hover:bg-primary/90 rounded-lg font-bold disabled:opacity-50">
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default LessonPage;

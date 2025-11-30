@@ -45,7 +45,7 @@ function Login() {
       login(data.user)
       setEmail("");
       setPassword("");
-      navigate('../')
+      navigate(-1)
     } catch (err: any) {
       if (typeof err === "object") setErrors(err);
       else setErrors({ general: err.message || "Login failed" });

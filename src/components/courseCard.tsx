@@ -1,10 +1,11 @@
 // src/components/courses/CourseCard.tsx
 import { useNavigate } from 'react-router-dom';
 import type { Course } from '../types/interfaces/Course';
+import type { UserProgress } from '../types/interfaces/UserProgress';
 
 interface CourseCardProps {
   course: Course;
-  progress?: number; // Опциональный прогресс (0–100)
+  progress?: UserProgress; // Опциональный прогресс (0–100)
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -13,7 +14,13 @@ export default function CourseCard({ course, progress }: CourseCardProps) {
   const navigate = useNavigate();
 
   const handleViewCourse = () => {
-    navigate(`/courses/${course.id}`);
+    //console.log(progress)
+    if(progress){
+      navigate(`/lesson/${progress.lessonId}`)
+    }
+    else{
+      navigate(`/courses/${course.id}`);
+    }
   };
 
   return (
@@ -39,7 +46,7 @@ export default function CourseCard({ course, progress }: CourseCardProps) {
 
         {/* Description OR Progress Text */}
         <p className="text-sm text-gray-500 dark:text-[#9dabb9] mb-4 flex-1">
-          {progress != null ? `${progress}% complete` : course.description}
+          {progress != null ? `${progress.progressPercent}% complete` : course.description}
         </p>
 
         {/* Tags */}
@@ -93,7 +100,7 @@ export default function CourseCard({ course, progress }: CourseCardProps) {
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
               <div
                 className="h-full bg-primary transition-all duration-500 ease-out"
-                style={{ width: `${progress}%` }}
+                style={{ width: `${progress.progressPercent}%` }}
               />
             </div>
           </div>

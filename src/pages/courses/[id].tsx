@@ -1,12 +1,13 @@
 // src/pages/Course.tsx
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
 import NotFound from "../notFound";
 import type { Course } from "../../types/interfaces/Course";
 import CourseCurriculum from "./components/CourseCurriculum";
 import CoursesCarousel from "../home/components/courseCarousel";
-import {ToastContainer, toast} from'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import type { UserProgress } from "../../types/interfaces/UserProgress";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -16,16 +17,20 @@ const CoursePage: React.FC = () => {
     const [course, setCourse] = useState<Course | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isEnrolled, setIsEnrolled] = useState(false)
+    const [progress, setProgress] = useState<UserProgress | null>(null)
 
+
+    const navigate = useNavigate()
     const handleEnroll = async () => {
-        if(!isAuthenticated){
-            toast.error("Please sign in to enroll in the course.",{
-                theme:"dark"
+        if (!isAuthenticated) {
+            toast.error("Please sign in to enroll in the course.", {
+                theme: "dark"
             });
             return;
         }
-        else{
-            try{
+        else {
+            try {
                 const response = await fetch(`/api/enroll/${id}`, {
                     method: "POST",
                     credentials: "include",
@@ -34,14 +39,39 @@ const CoursePage: React.FC = () => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
+                const data = await response.json()
+                console.log({data})
+                const enrollment = data.enrollment
+                if (enrollment != null) {
+                    navigate(`/lesson/${enrollment.lessonId}`)
+                }
+                else {
+                    toast.error("Failed to redirect for first lesson.", {
+                        theme: "dark"
+                    });
+                }
             }
-            catch(err){
-                toast.error("Failed to enroll in the course. Please try again later.",{
-                    theme:"dark"
+            catch (err) {
+                toast.error("Failed to enroll in the course. Please try again later.", {
+                    theme: "dark"
                 });
             }
         }
     };
+    const handleContinue = async () => {
+        if (progress != null && progress.lessonId != null) {
+            navigate(`/lesson/${progress.lessonId}`)
+        }
+        else {
+            toast.error("Failed to redirect for lesson page. Please, reload page and try again.", {
+                theme: 'dark'
+            })
+        }
+    }
+    const singInForStart = async () =>{
+        navigate(`/auth/login`)
+    }
+
 
     useEffect(() => {
         const fetchCourse = async () => {
@@ -67,8 +97,12 @@ const CoursePage: React.FC = () => {
                     const data = await response.json();
                     console.log({ data })
                     setCourse(data.course);
-
+                    if (data.enrolled != null) {
+                        setProgress(data.enrolled)
+                        setIsEnrolled(true)
+                    }
                 }
+
             } catch (err: any) {
                 console.error("Fetch error:", err);
                 setError(err.message || "Ошибка загрузки");
@@ -128,11 +162,11 @@ const CoursePage: React.FC = () => {
                                                     </>
                                                 )}
                                                 {!isAuthenticated && (
-                                                    <button className="w-full h-12 px-4 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors">
+                                                    <button onClick={singInForStart} className="w-full h-12 px-4 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors">
                                                         Sign in For Start
                                                     </button>
                                                 )}
-                                                {isAuthenticated && (
+                                                {(isAuthenticated && !isEnrolled) && (
                                                     <>
                                                         <button onClick={handleEnroll} className="w-full h-12 px-4 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors">
                                                             Start Now
@@ -140,6 +174,25 @@ const CoursePage: React.FC = () => {
                                                         <button className="w-full h-12 px-4 bg-white/10 text-white font-bold rounded-lg hover:bg-white/20 transition-colors">
                                                             Add to Favorite
                                                         </button>
+                                                    </>
+                                                )}
+                                                {(isAuthenticated && isEnrolled && progress) && (
+                                                    <>
+                                                        <button onClick={handleContinue} className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary hover:bg-primary/90 text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] transition-colors">
+                                                            <span className="material-symbols-outlined">play_arrow</span>
+                                                            <span className="truncate">Continue Learning</span>
+                                                        </button>
+                                                        <p className="text-sm text-gray-500 dark:text-[#9dabb9] flex-1">
+                                                            {progress != null ? `${progress.progressPercent}% complete` : course.description}
+                                                        </p>
+                                                        <div className="">
+                                                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                                                                <div
+                                                                    className="h-full bg-primary transition-all duration-500 ease-out"
+                                                                    style={{ width: `${progress.progressPercent}%` }}
+                                                                />
+                                                            </div>
+                                                        </div>
                                                     </>
                                                 )}
                                             </div>
@@ -184,7 +237,7 @@ const CoursePage: React.FC = () => {
                     </div>
                 </main>
             </div>
-            <ToastContainer/>
+            <ToastContainer />
         </div>
     );
 };
