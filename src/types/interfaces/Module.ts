@@ -8,5 +8,12 @@ export interface Module {
     order: number
     createdAt: Date
     updatedAt: Date
-    lessons: Lesson[]
+    lessons: Partial<Lesson>[]
+}
+
+export interface CreateModule{
+    title:string,
+    description?:string,
+    order:number,
+    lessons:Lesson[]
 }

@@ -54,7 +54,7 @@ export default function CourseCurriculum({ modules }: CourseCurriculumProps) {
                 >
                   {module.lessons.length > 0 ? (
                     module.lessons
-                      .sort((a, b) => a.order - b.order)
+                      .sort((a, b) => a.order! - b.order!)
                       .map((lesson, index) => (
                         <div
                           key={lesson.id}

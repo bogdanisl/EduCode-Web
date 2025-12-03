@@ -5,6 +5,7 @@ import NotFound from "../../notFound";
 import { useNavigate } from "react-router-dom";
 import type { Category } from "../../../types/interfaces/CourseCategory";
 import CourseCurriculumEditor from "../components/LessonsEditor";
+import type { Module } from "../../../types/interfaces/Module";
 
 
 
@@ -20,6 +21,7 @@ export default function AddCoursePage() {
   const [price, setPrice] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [modules,setModules] = useState<Partial<Module>[]>([]);
 
   // Data
   const difficulties = [{
@@ -44,7 +46,7 @@ export default function AddCoursePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const catRes = await fetch('/api/course/category',{
+        const catRes = await fetch('/api/courses/category/list',{
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         })
@@ -99,6 +101,8 @@ export default function AddCoursePage() {
 
   // Submit form
   const handleSubmit = async (e: React.FormEvent) => {
+    
+    //console.log(modules);
     e.preventDefault();
     setLoading(true);
     setErrors({});
@@ -125,6 +129,7 @@ export default function AddCoursePage() {
     formData.append("description", description);
     formData.append("difficultyId", difficulty);
     formData.append("categoryId", category);
+    formData.append("modules",JSON.stringify(modules));
     if (image) formData.append("cover", image);
 
     try {
@@ -216,7 +221,7 @@ export default function AddCoursePage() {
                 </div>
               </div>
 
-              <CourseCurriculumEditor/>
+              <CourseCurriculumEditor modules={modules} setModules={setModules}/>
 
               {/* Course Media */}
               <div className="space-y-4 rounded-xl border border-gray-200 dark:border-white/10 bg-white/5 p-6">
