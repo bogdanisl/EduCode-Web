@@ -2,7 +2,7 @@
 export default function FiltersSidebar() {
   return (
     <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0">
-      <div className="sticky top-28">
+      <div className="top-28">
         <div className="flex flex-col gap-4 bg-white/5 rounded-xl p-4">
           <h2 className="text-white text-lg font-bold">Filters</h2>
 

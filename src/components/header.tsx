@@ -54,6 +54,11 @@ const Header = () => {
                 My Courses
               </Link>
             )}
+            {user?.role == 'admin' && (
+              <Link className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-sm font-medium" to="users">
+                Users
+              </Link>
+            )}
           </nav>
         </div>
       </div>
@@ -89,7 +94,7 @@ const Header = () => {
             {profileMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md py-2 z-50">
                 <p className="block px-4 py-2 text-gray-800 dark:text-gray-200">{user?.fullName}</p>
-                <br/>
+                <br />
                 <Link to="/profile" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</Link>
                 <Link to="/settings" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Settings</Link>
                 <Link to="/help" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Help</Link>

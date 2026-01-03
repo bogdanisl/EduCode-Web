@@ -185,7 +185,7 @@ export default function CourseCurriculumEditor({
             setModules(prev => prev.map(m => m.id === editModuleData.id ? { ...m, ...data } : m));
         } else {
             const new_mod: Partial<Module> = {
-                id:Date.now(),
+                id: Date.now(),
                 title: data.title,
                 description: data.description,
                 lessons: [],
@@ -203,7 +203,7 @@ export default function CourseCurriculumEditor({
         if (moduleId != openId) {
             setOpenId(moduleId);
         }
-        else{
+        else {
             setOpenId(-1);
         }
     };
@@ -222,11 +222,11 @@ export default function CourseCurriculumEditor({
                     lessons: m.lessons!.map((l: any) => l.id === editLessonData.id ? { ...l, ...data } : l),
                 };
             }
-           
+
             return {
-                
+
                 ...m,
-                lessons: [...m.lessons!, { id: Date.now(), title: data.title, description: data.description, tasks: [],order:0 }],
+                lessons: [...m.lessons!, { id: Date.now(), title: data.title, description: data.description, tasks: [], order: 0 }],
             };
         }));
         setIsLessonModalOpen(false);
@@ -239,10 +239,10 @@ export default function CourseCurriculumEditor({
         setModules(prev => prev.map(m => m.id === moduleId ? { ...m, lessons: newOrder } : m));
     };
     const toggleOpenLesson = (lessonId: number) => {
-        if(lessonOpenId==lessonId){
+        if (lessonOpenId == lessonId) {
             setLessonOpenId(-1);
         }
-        else{
+        else {
             setLessonOpenId(lessonId);
         }
     };
@@ -267,7 +267,7 @@ export default function CourseCurriculumEditor({
                     if (editAssignmentData) {
                         return { ...l, tasks: l.tasks.map((a: any) => a.id === editAssignmentData.id ? { ...a, ...data } : a) };
                     }
-                    return { ...l, tasks: [...(l.tasks || []), { id: Date.now(), order:0, ...data }] };
+                    return { ...l, tasks: [...(l.tasks || []), { id: Date.now(), order: 0, ...data }] };
                 }),
             };
         }));

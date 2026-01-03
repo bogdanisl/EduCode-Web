@@ -58,7 +58,7 @@ const DashboardIndex: React.FC = () => {
     }
 
     return (
-        <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+        <div className="relative flex h-auto  w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
             <div className="layout-container flex h-full grow flex-col">
                 {/* Main Content */}
                 <main className="flex-1 px-4 sm:px-8 lg:px-10 py-8">

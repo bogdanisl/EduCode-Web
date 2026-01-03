@@ -40,7 +40,7 @@ const CoursePage: React.FC = () => {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 const data = await response.json()
-                console.log({data})
+                console.log({ data })
                 const enrollment = data.enrollment
                 if (enrollment != null) {
                     navigate(`/lesson/${enrollment.lessonId}`)
@@ -68,8 +68,42 @@ const CoursePage: React.FC = () => {
             })
         }
     }
-    const singInForStart = async () =>{
+    const singInForStart = async () => {
         navigate(`/auth/login`)
+    }
+    const handleEdit = async () => {
+        navigate(`/admin/course/edit/${id}`)
+    }
+    const handleDelete = async () => {
+        if (!id) {
+            setError("ID not founded in URL");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/course/${id}`, {
+                method: "DELETE",
+                credentials: "include",
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    setError("Course not found");
+                } else {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+            } 
+            else {
+                navigate('../')
+            }
+
+        } catch (err: any) {
+            console.error("Fetch error:", err);
+            setError(err.message || "Ошибка загрузки");
+        } finally {
+            setLoading(false);
+        }
     }
 
 
@@ -152,10 +186,10 @@ const CoursePage: React.FC = () => {
                                             <div className="flex flex-col gap-4">
                                                 {user?.role === "admin" && (
                                                     <>
-                                                        <button className="w-full h-12 px-4 bg-yellow-500 text-white font-bold rounded-lg hover:bg-yellow-500/90 transition-colors">
+                                                        <button onClick={handleEdit} className="w-full h-12 px-4 bg-yellow-500 text-white font-bold rounded-lg hover:bg-yellow-500/90 transition-colors">
                                                             Edit
                                                         </button>
-                                                        <button className="w-full h-12 px-4 bg-red-500 text-white font-bold rounded-lg hover:bg-red-500/90 transition-colors">
+                                                        <button onClick={handleDelete} className="w-full h-12 px-4 bg-red-500 text-white font-bold rounded-lg hover:bg-red-500/90 transition-colors">
                                                             Delete
                                                         </button>
                                                         <br />

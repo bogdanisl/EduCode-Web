@@ -19,9 +19,15 @@ const LayoutWrapper = () => {
 
   return (
     <>
-      {!hideLayout && <Header />}
-      <AppRoutes />
-      {!hideLayout && <Footer />}
+      <div className="min-h-screen flex flex-col">
+        {!hideLayout && <Header />}
+
+        <main className="flex-grow">
+          <AppRoutes />
+        </main>
+
+        {!hideLayout && <Footer />}
+      </div>
     </>
   );
 };
