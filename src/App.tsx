@@ -6,7 +6,7 @@ import HomeIndex from './pages/home';
 
 
 function App() {
-  const [user, setUser] = useState<{ fullName: string } | null>(null);
+  const [,setUser] = useState<{ fullName: string } | null>(null);
   const {isAuthenticated,logout} = useAuth()
 
   useEffect( () => {

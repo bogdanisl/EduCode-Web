@@ -161,6 +161,7 @@ export default function EditUserPage() {
                     >
                         <option value="user">User</option>
                         <option value="admin">Admin</option>
+                        <option value='tester'>Autor</option>
                     </select>
                 </div>
 

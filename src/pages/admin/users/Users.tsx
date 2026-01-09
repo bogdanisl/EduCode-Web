@@ -132,9 +132,10 @@ export default function UsersPage() {
                                 px-2 py-1 rounded-full text-xs font-semibold
                                 ${user.role === "admin"
                                             ? "bg-red-100 text-red-700"
-                                            : "bg-blue-100 text-blue-700"}
+                                            : user.role == 'tester'? "bg-green-200 text-green-800" :"bg-blue-100 text-blue-700"}
                             `}>
-                                        {user.role}
+                                
+                                        {user.role == 'tester'?'autor':user.role}
                                     </span>
                                 </td>
 

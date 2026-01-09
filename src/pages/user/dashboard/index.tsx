@@ -75,7 +75,7 @@ const DashboardIndex: React.FC = () => {
                             </div>
                             <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary hover:bg-primary/90 text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] transition-colors">
                                 <span className="material-symbols-outlined">play_arrow</span>
-                                <span className="truncate">Continue Learning</span>
+                                <span className="truncate">{progresses.length==0?'Start your journey': 'Continue Learning'}</span>
                             </button>
                         </div>
 
@@ -100,7 +100,7 @@ const DashboardIndex: React.FC = () => {
                             {/* Right Column - Sidebar */}
                             <aside className="lg:col-span-1 flex flex-col gap-8">
                                 {/* My Progress */}
-                                <section>
+                                {/* <section>
                                     <h2 className="text-gray-800 dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-2 pb-3 pt-5 bg-background-light dark:bg-background-dark">
                                         My Progress
                                     </h2>
@@ -124,7 +124,7 @@ const DashboardIndex: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                </section>
+                                </section> */}
                             </aside>
                         </div>
 

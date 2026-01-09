@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../../context/AuthProvider";
 import NotFound from "../../notFound";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import type { Category } from "../../../types/interfaces/CourseCategory";
 import type { Module } from "../../../types/interfaces/Module";
 import CourseCurriculumEditor from "../components/LessonsEditor";
@@ -62,8 +62,7 @@ function ModuleCategory({ open, onClose, onSave, errors }: any) {
 }
 
 export default function EditCoursePage() {
-  const { role } = useAuth();
-  const navigate = useNavigate();
+  const { role, user } = useAuth();
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id;
 
@@ -75,6 +74,7 @@ export default function EditCoursePage() {
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [modules, setModules] = useState<Partial<Module>[]>([]);
+  const [autorID, setAutorID] = useState<number | null>(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [categoryModalErrors, setCategoryModalErrors] = useState<{ title: string, description: string }>({ title: '', description: '' })
 
@@ -119,8 +119,9 @@ export default function EditCoursePage() {
           setDescription(course.description || "");
           setDifficulty(String(course.difficulty ?? ""));
           setCategoryId(String(course.categoryId ?? ""));
+          setAutorID(course.createdBy ?? null);
           setModules(course.modules || []);
-          setImagePreview(`${API_URL}/assets/courses/covers/${course.id}.png`); // предполагается, что бэк возвращает URL
+          setImagePreview(`${API_URL}/assets/courses/covers/${course.id}.png`);
         }
       } catch (err) {
         setErrors({ general: "Failed to load data. Please try again." });
@@ -247,7 +248,7 @@ export default function EditCoursePage() {
   };
 
   // Защита доступа
-  if (role !== "admin") return <NotFound />;
+  if (role !== "admin" && role !== "tester") return <NotFound />;
 
   // Пока грузим
   if (loading) {
@@ -257,6 +258,8 @@ export default function EditCoursePage() {
       </main>
     );
   }
+
+  if (role === 'tester' && isEditMode && user?.id !== autorID) return <NotFound />
 
   return (
     <main className="flex-grow bg-background-light dark:bg-background-dark text-gray-800 dark:text-white">

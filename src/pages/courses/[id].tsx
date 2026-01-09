@@ -184,7 +184,7 @@ const CoursePage: React.FC = () => {
                                         />
                                         <div className="p-6 space-y-6">
                                             <div className="flex flex-col gap-4">
-                                                {user?.role === "admin" && (
+                                                {(user?.role === "admin" || (user?.role === 'tester' && user?.id === course.createdBy)) && (
                                                     <>
                                                         <button onClick={handleEdit} className="w-full h-12 px-4 bg-yellow-500 text-white font-bold rounded-lg hover:bg-yellow-500/90 transition-colors">
                                                             Edit
@@ -248,10 +248,6 @@ const CoursePage: React.FC = () => {
                                                     <li className="flex items-center gap-3">
                                                         <span className="material-symbols-outlined text-primary">article</span>
                                                         Downloadable resources
-                                                    </li>
-                                                    <li className="flex items-center gap-3">
-                                                        <span className="material-symbols-outlined text-primary">workspace_premium</span>
-                                                        Certificate of completion
                                                     </li>
                                                 </ul>
                                             </div>

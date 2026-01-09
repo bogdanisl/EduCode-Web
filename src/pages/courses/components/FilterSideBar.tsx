@@ -1,84 +1,121 @@
-// src/components/courses/FiltersSidebar.jsx
-export default function FiltersSidebar() {
+import { useEffect, useState } from "react";
+import type { Category } from "../../../types/interfaces/CourseCategory";
+
+interface FiltersSidebarProps {
+  apply: (
+    categories?: number[],
+    difficulty?: string[],
+    searchText?: string
+  ) => void;
+}
+
+export default function FiltersSidebar({ apply }: FiltersSidebarProps) {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string[]>([]);
+  const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`/api/courses/category/list`);
+        const data = await response.json();
+        setCategories(data.categories || []);
+      } catch (err) {
+        console.error("Fetch category error:", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const toggleCategory = (id: number) => {
+    setSelectedCategories((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
+  };
+
+  const toggleDifficulty = (level: string) => {
+    setSelectedDifficulty((prev) =>
+      prev.includes(level) ? prev.filter((d) => d !== level) : [...prev, level]
+    );
+  };
+
+  const handleApply = () => {
+    apply(selectedCategories, selectedDifficulty, searchText);
+  };
+
+  const handleReset = () => {
+    setSelectedCategories([]);
+    setSelectedDifficulty([]);
+    setSearchText("");
+    apply([], [], "");
+  };
+
   return (
     <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0">
-      <div className="top-28">
-        <div className="flex flex-col gap-4 bg-white/5 rounded-xl p-4">
-          <h2 className="text-white text-lg font-bold">Filters</h2>
+      <div className="flex flex-col gap-4 bg-white/5 rounded-xl p-4">
+        <h2 className="text-white text-lg font-bold">Filters</h2>
 
-          {/* Search in Sidebar */}
-          <div className="py-2">
-            <label className="flex flex-col min-w-40 h-11 w-full">
-              <div className="flex w-full flex-1 items-stretch rounded-lg h-full">
-                <div className="text-[#92adc9] flex border-none bg-black/20 items-center justify-center pl-3 rounded-l-lg border-r-0">
-                  <span className="material-symbols-outlined">search</span>
-                </div>
-                <input
-                  className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border-none bg-black/20 focus:border-none h-full placeholder:text-[#92adc9] px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal"
-                  placeholder="Search courses..."
-                />
-              </div>
+        {/* Search */}
+        <input
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          placeholder="Search courses..."
+          className="h-11 rounded-lg bg-black/20 text-white px-4 outline-none focus:ring-2 focus:ring-primary/50"
+        />
+
+        {/* Categories */}
+        <div className="border-t border-white/10 pt-4">
+          <h3 className="font-semibold text-white mb-2">Topic</h3>
+          {categories.map((category) => (
+            <label key={category.id} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-white/20 bg-transparent text-primary"
+                checked={selectedCategories.includes(Number(category.id))}
+                onChange={() => toggleCategory(Number(category.id))}
+              />
+              <span className="text-white/80">{category.name}</span>
             </label>
-          </div>
+          ))}
+        </div>
 
-          {/* Topic */}
-          <div className="flex flex-col gap-2 border-t border-white/10 pt-4">
-            <h3 className="font-semibold text-white">Topic</h3>
-            <div className="flex flex-col gap-2 pl-1">
-              {['Python', 'UI/UX Design', 'Data Science'].map((topic, i) => (
-                <label key={topic} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    defaultChecked={i === 1}
-                    className="h-4 w-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary/50"
-                  />
-                  <span className="text-sm text-white/80">{topic}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+        {/* Difficulty */}
+        <div className="border-t border-white/10 pt-4">
+          <h3 className="font-semibold text-white mb-2">Difficulty</h3>
+          {[
+            { label: "Beginner", value: 1 },
+            { label: "Intermediate", value: 2 },
+            { label: "Advanced", value: 3 },
+          ].map((level) => (
+            <label key={level.value} className="flex items-center gap-2">
+              <input
+                className="h-4 w-4 rounded border-white/20 bg-transparent text-primary"
+                type="checkbox"
+                checked={selectedDifficulty.includes(level.label.toLowerCase())}
+                onChange={() => toggleDifficulty(level.label.toLowerCase())}
+              />
+              <span className="text-white/80">{level.label}</span>
+            </label>
+          ))}
+        </div>
 
-          {/* Difficulty */}
-          <div className="flex flex-col gap-2 border-t border-white/10 pt-4">
-            <h3 className="font-semibold text-white">Difficulty</h3>
-            <div className="flex flex-col gap-2 pl-1">
-              {['Beginner', 'Intermediate', 'Advanced'].map((level) => (
-                <label key={level} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary/50"
-                  />
-                  <span className="text-sm text-white/80">{level}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+        {/* Buttons */}
+        <div className="border-t border-white/10 pt-4 flex flex-col gap-2">
+          <button
+            onClick={handleApply}
+            className="h-10 rounded-lg bg-primary text-white font-bold hover:bg-primary/90"
+          >
+            Apply Filters
+          </button>
 
-          {/* Format */}
-          <div className="flex flex-col gap-2 border-t border-white/10 pt-4">
-            <h3 className="font-semibold text-white">Format</h3>
-            <div className="flex flex-col gap-2 pl-1">
-              {['Video', 'Interactive', 'Text-based'].map((format) => (
-                <label key={format} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary/50"
-                  />
-                  <span className="text-sm text-white/80">{format}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex flex-col gap-2 border-t border-white/10 pt-4">
-            <button className="w-full flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
-              Apply Filters
-            </button>
-            <button className="w-full flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white/10 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-white/20 transition-colors">
-              Reset
-            </button>
-          </div>
+          <button
+            onClick={handleReset}
+            className="h-10 rounded-lg bg-white/10 text-white hover:bg-white/20"
+          >
+            Reset
+          </button>
         </div>
       </div>
     </aside>

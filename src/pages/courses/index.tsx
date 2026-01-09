@@ -12,15 +12,24 @@ import { useAuth } from "../../context/AuthProvider";
 
 export default function CoursesIndex() {
     const [courses, setCourses] = useState<Course[]>([])
-    const [loading, setLoading] = useState<boolean>(true)
-    const [error, setError] = useState<string | null>(null)
+    const [, setLoading] = useState<boolean>(true)
+    const [, setError] = useState<string | null>(null)
+    const [categoriesFilter, setCategoriesFilter] = useState<number[]>([]);
+    const [difficultyFilter, setDifficultyFilter] = useState<string[]>([]);
+    const [searchText, setSearchText] = useState<string | null>('');
     const { role } = useAuth();
-    
+
     useEffect(() => {
         //console.log(loading,error)
         const fetchCourses = async () => {
             try {
-                const response = await fetch(`/api/course?limit=9`, {
+                const params = new URLSearchParams()
+                categoriesFilter.forEach((id) => params.append('categories', id.toString()));
+                difficultyFilter.forEach((val) => params.append('difficulties', val));
+                if (searchText != null) {
+                    params.append('searchText', searchText)
+                }
+                const response = await fetch(`/api/course?limit=9&${params.toString()}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                 })
@@ -41,16 +50,21 @@ export default function CoursesIndex() {
                 setLoading(false)
             }
         }
-
         fetchCourses()
     })
+
+    const handleApplyFilters = async (categories?: number[], difficulty?: string[], searchText?: string) => {
+        setCategoriesFilter(categories || []);
+        setDifficultyFilter(difficulty || []);
+        setSearchText(searchText?.toLowerCase() ?? null);
+    }
     return (
         <main className="flex-1 px-6 sm:px-10 lg:px-20 py-10">
             <div className="mx-auto max-w-7xl">
                 <div className="flex flex-col lg:flex-row gap-8">
 
                     {/* Filters */}
-                    <FiltersSidebar />
+                    <FiltersSidebar apply={handleApplyFilters} />
 
                     {/* Main Content */}
                     <div className="flex-1">
@@ -58,13 +72,13 @@ export default function CoursesIndex() {
                             <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
                                 Explore Our Courses
                             </h1>
-                            {role === 'admin' &&
-                            <Link
-                            to={'/admin/course/create'}
-                            className="mt-4 flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
-                            >
-                                <span className="truncate">Add New Course</span>
-                            </Link>
+                            {(role === 'admin' || role == 'tester') &&
+                                <Link
+                                    to={'/admin/course/create'}
+                                    className="mt-4 flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
+                                >
+                                    <span className="truncate">Add New Course</span>
+                                </Link>
                             }
                         </div>
 

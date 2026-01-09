@@ -180,17 +180,14 @@ const LessonPage: React.FC = () => {
 
       {/* 1. Шапка */}
       <div className="flex items-center justify-between border-b border-white/10 px-6 py-3 bg-[#16181f]">
-        <h1 className="text-xl font-bold">{lesson.title}</h1>
+        <h1 className="text-xl font-bold">{'Introduction'}</h1>
         <div className="text-sm text-gray-400">Task {currentTaskIndex + 1} / {lesson.tasks.length}</div>
       </div>
       <div className="flex flex-1 overflow-hidden">
         {/* Левая панель — оставляем тут (как ты просил) */}
         <div style={{ width: `${leftWidth}px` }} className="border-r border-white/10 p-6 bg-[#12151b] overflow-y-auto">
-          <h2 className="text-2xl font-bold mb-4">{lesson.title}</h2>
+          <h2 className="text-2xl font-bold mb-4">{'Introduction'}</h2>
           <p className="text-gray-300 mb-6">{lesson.description}</p>
-          <div className="text-sm text-gray-400 mb-6">
-            Module: <span className="text-white">{lesson.module.title}</span>
-          </div>
           {(isCode || task.type === "quiz") && (
             <>
               <h3 className="text-xl font-bold mb-3">{task.title}</h3>
