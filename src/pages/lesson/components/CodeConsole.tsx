@@ -2,13 +2,11 @@ import { useState } from "react";
 
 export default function CodeConsole({
   consoleOutput,
-  output,
   error,
   correctOutput,
   height,
 }: {
   consoleOutput: string;
-  output: string;
   error: string | null;
   correctOutput: string;
   height: number;
@@ -56,13 +54,6 @@ export default function CodeConsole({
               <pre className="text-gray-300 whitespace-pre-wrap">{consoleOutput}</pre>
             ) : (
               <div className="text-gray-500">Click "Run & Check" to see output</div>
-            )}
-
-            {output && !error && (
-              <div className="mt-4 pt-4 border-t border-white/10">
-                <strong>Output:</strong>{" "}
-                <span className="text-green-400">{output}</span>
-              </div>
             )}
           </>
         )}

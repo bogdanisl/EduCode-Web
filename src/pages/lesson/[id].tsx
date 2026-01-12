@@ -1,22 +1,25 @@
 // LessonPage.tsx
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type { Lesson } from "../../types/interfaces/Lesson";
 import CodeConsole from "./components/CodeConsole";
 import TaskArea from "./components/TaskArea";
+import { toast, ToastContainer } from "react-toastify";
+import { X } from "lucide-react";
+
 
 const LessonPage: React.FC = () => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
-  const [code, setCode] = useState("// Write your code here\n");
+  const [code, setCode] = useState("//code");
 
   // Состояние отправки и результата
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{ correct: boolean } | null>(null);
   const [consoleOutput, setConsoleOutput] = useState<string>("");
-  const [output, setOutput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   // Resize
@@ -25,20 +28,36 @@ const LessonPage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const resizingRef = useRef<{ left: boolean; bottom: boolean }>({ left: false, bottom: false });
 
-  // === Загрузка урока ===
   useEffect(() => {
+    if (!id) return;
+
+    setLoading(true);
+    setLesson(null);
+    setCurrentTaskIndex(0);
+    setCode("// Write your code here\n");
+    setConsoleOutput("");
+    setError(null);
+    setSubmitStatus(null);
+
     const fetchLesson = async () => {
       try {
         const res = await fetch(`/api/lesson/${id}`, { credentials: "include" });
         if (!res.ok) throw new Error("Failed to load lesson");
+
         const data = await res.json();
         setLesson(data.lesson);
+
+        const firstTask = data.lesson.tasks[0];
+        if (firstTask?.type === "code") {
+          setCode(firstTask.startCode || "// Write your code here\n");
+        }
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchLesson();
   }, [id]);
 
@@ -59,51 +78,49 @@ const LessonPage: React.FC = () => {
     document.body.style.userSelect = "none";
   };
   useEffect(() => {
-  function onMouseMove(e: MouseEvent) {
-    // === LEFT RESIZE ===
-    if (resizingRef.current.left) {
-      const newWidth = e.clientX; // ← фикс!
-      if (newWidth > 240 && newWidth < window.innerWidth - 300) {
-        setLeftWidth(newWidth);
+    function onMouseMove(e: MouseEvent) {
+      // === LEFT RESIZE ===
+      if (resizingRef.current.left) {
+        const newWidth = e.clientX; // ← фикс!
+        if (newWidth > 240 && newWidth < window.innerWidth - 300) {
+          setLeftWidth(newWidth);
+        }
+      }
+
+      // === BOTTOM RESIZE ===
+      if (resizingRef.current.bottom && containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const newHeight = rect.bottom - e.clientY;
+        if (newHeight > 120 && newHeight < rect.height - 120) {
+          setBottomHeight(newHeight);
+        }
       }
     }
 
-    // === BOTTOM RESIZE ===
-    if (resizingRef.current.bottom && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const newHeight = rect.bottom - e.clientY;
-      if (newHeight > 120 && newHeight < rect.height - 120) {
-        setBottomHeight(newHeight);
+    function onMouseUp() {
+      if (resizingRef.current.left || resizingRef.current.bottom) {
+        resizingRef.current.left = false;
+        resizingRef.current.bottom = false;
+        document.body.style.cursor = "default";
+        document.body.style.userSelect = "auto";
       }
     }
-  }
 
-  function onMouseUp() {
-    if (resizingRef.current.left || resizingRef.current.bottom) {
-      resizingRef.current.left = false;
-      resizingRef.current.bottom = false;
-      document.body.style.cursor = "default";
-      document.body.style.userSelect = "auto";
-    }
-  }
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
 
-  document.addEventListener("mousemove", onMouseMove);
-  document.addEventListener("mouseup", onMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+  }, []);
 
-  return () => {
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("mouseup", onMouseUp);
-  };
-}, []);
-
-  // === ЕДИНЫЙ ОБРАБОТЧИК ОТПРАВКИ ===
   const handleSubmit = async () => {
     if (!lesson || !task) return;
 
     setIsSubmitting(true);
     setSubmitStatus(null);
     setConsoleOutput("");
-    setOutput("");
     setError(null);
 
     try {
@@ -114,7 +131,9 @@ const LessonPage: React.FC = () => {
           `input[name="task-${task.id}"]:checked`
         ) as HTMLInputElement | null;
         if (!selected) {
-          alert("Выбери вариант ответа!");
+          toast.info("You should select an option.", {
+            theme: "dark"
+          });
           setIsSubmitting(false);
           return;
         }
@@ -141,22 +160,30 @@ const LessonPage: React.FC = () => {
 
       // Универсальная обработка ответа
       setSubmitStatus({ correct: data.correct });
-
       if (task.type === "code") {
         setConsoleOutput(data.console || "");
-        setOutput(data.output || "");
         setError(data.error || null);
       }
-
+      console.log(data);
       if (res.ok && data.correct) {
         setTimeout(() => {
           if (currentTaskIndex < lesson.tasks.length - 1) {
             setCurrentTaskIndex(i => i + 1);
             setCode("// Write your code here\n");
             setConsoleOutput("");
-            setOutput("");
             setError(null);
             setSubmitStatus(null);
+          }
+          else {
+            const nextLessonId = data.nextLessonId;
+            if (nextLessonId && nextLessonId !== -1 && data.nextLessonId !== -2) {
+              navigate(`/lesson/${nextLessonId}`, { replace: true });
+            }
+            else if (data.nextLessonId === -2) {
+              toast.success("Congratulations! You have completed the course.");
+              navigate(`/dashboard`, { replace: true });
+
+            }
           }
         }, 1200);
       }
@@ -173,6 +200,9 @@ const LessonPage: React.FC = () => {
   if (!lesson) return null;
 
   const task = lesson.tasks[currentTaskIndex];
+  if (!task) {
+    return <div className="text-white p-10">Task not found</div>;
+  }
   const isCode = task.type === "code";
 
   return (
@@ -180,13 +210,23 @@ const LessonPage: React.FC = () => {
 
       {/* 1. Шапка */}
       <div className="flex items-center justify-between border-b border-white/10 px-6 py-3 bg-[#16181f]">
-        <h1 className="text-xl font-bold">{'Introduction'}</h1>
+        <div className="flex gap-5">
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            className="p-2 rounded-lg hover:bg-white/10 transition"
+            aria-label="Close"
+          >
+            <X size={20} />
+          </button>
+          <h1 className="text-xl font-bold">{lesson.module.title}</h1>
+        </div>
         <div className="text-sm text-gray-400">Task {currentTaskIndex + 1} / {lesson.tasks.length}</div>
       </div>
       <div className="flex flex-1 overflow-hidden">
         {/* Левая панель — оставляем тут (как ты просил) */}
         <div style={{ width: `${leftWidth}px` }} className="border-r border-white/10 p-6 bg-[#12151b] overflow-y-auto">
-          <h2 className="text-2xl font-bold mb-4">{'Introduction'}</h2>
+          <h2 className="text-2xl font-bold mb-4">{lesson.title}</h2>
           <p className="text-gray-300 mb-6">{lesson.description}</p>
           {(isCode || task.type === "quiz") && (
             <>
@@ -206,7 +246,7 @@ const LessonPage: React.FC = () => {
           {/* 2. Основная область задачи */}
           <TaskArea
             task={task}
-            code={task.startCode}
+            code={code}
             onCodeChange={setCode}
             isSubmitting={isSubmitting}
             onSubmit={handleSubmit}
@@ -218,8 +258,8 @@ const LessonPage: React.FC = () => {
               <div
                 onMouseDown={startBottomResize}
                 className="h-1 bg-transparent hover:bg-white/20 cursor-row-resize"
-              ></div>              
-              <CodeConsole consoleOutput={consoleOutput} output={output} error={error} height={bottomHeight} correctOutput={task.correctOutput || ''} />
+              ></div>
+              <CodeConsole consoleOutput={consoleOutput} error={error} height={bottomHeight} correctOutput={task.correctOutput || ''} />
             </>
           )}
         </div>
@@ -245,6 +285,8 @@ const LessonPage: React.FC = () => {
           Next
         </button>
       </div>
+      <ToastContainer />
+
     </div>
   );
 }

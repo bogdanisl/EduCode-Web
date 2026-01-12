@@ -46,7 +46,7 @@ function Register() {
         setFullName("");
         setEmail("");
         setPassword("");
-        console.log("Registered user:", data);
+        //console.log("Registered user:", data);
       })
       .catch((err: any) => {
         if (typeof err === "object") setErrors(err);

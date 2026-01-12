@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NotFound from "../../notFound";
 import { useAuth, type User } from "../../../context/AuthProvider";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function EditUserPage() {
     const { role } = useAuth();
@@ -60,7 +61,9 @@ export default function EditUserPage() {
 
             navigate("/users");
         } catch {
-            alert("Failed to update user");
+            toast.error("Failed to update user.", {
+                theme: "dark"
+            });
         }
     };
 
@@ -188,6 +191,8 @@ export default function EditUserPage() {
                     </button>
                 </div>
             </form>
+            <ToastContainer />
+
         </div>
     );
 }

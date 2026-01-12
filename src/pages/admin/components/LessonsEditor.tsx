@@ -2,152 +2,10 @@ import { useState, type JSX } from "react";
 import { GripVertical, Plus, Pencil, Trash2 } from "lucide-react";
 import { motion, Reorder } from "framer-motion";
 import type { Module } from "../../../types/interfaces/Module";
+import ModuleModal from "./modals/ModuleModal";
+import LessonModal from "./modals/LessonModal";
+import ItemModal from "./modals/ItemModal";
 
-
-function ModuleModal({ open, onClose, onSave, initial }: any) {
-    const [title, setTitle] = useState(initial?.title || "");
-    const [description, setDescription] = useState(initial?.description || "");
-
-    if (!open) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white/10 border border-white/20 rounded-xl p-6 w-full max-w-md space-y-4">
-                <h2 className="text-xl font-bold mb-2">{initial ? "Edit Module" : "Add new Module"}</h2>
-                <div className="space-y-2">
-                    <input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="w-full bg-white/5 p-2 rounded border border-white/10 outline-none"
-                        placeholder="Module title"
-                    />
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="w-full bg-white/5 p-2 rounded border border-white/10 outline-none h-24 resize-none"
-                        placeholder="Module description"
-                    />
-                </div>
-                <div className="flex justify-end gap-3 pt-4">
-                    <button onClick={onClose} className="px-4 py-2 rounded bg-white/5 hover:bg-white/10">
-                        Cancel
-                    </button>
-                    <button onClick={() => onSave({ title, description })} className="px-4 py-2 rounded bg-green-600 hover:bg-green-700">
-                        Save
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function LessonModal({ open, onClose, onSave, initial }: any) {
-    const [title, setTitle] = useState(initial?.title || "");
-    const [description, setDescription] = useState(initial?.description || "");
-
-    if (!open) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white/10 border border-white/20 rounded-xl p-6 w-full max-w-md space-y-4">
-                <h2 className="text-xl font-bold mb-2">{initial ? "Edit lesson" : "Add new lesson"}</h2>
-
-                <div className="space-y-2">
-                    <input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="w-full bg-white/5 p-2 rounded border border-white/10 outline-none"
-                        placeholder="Lesson title"
-                    />
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="w-full bg-white/5 p-2 rounded border border-white/10 outline-none h-24 resize-none"
-                        placeholder="Lesson description"
-                    />
-                </div>
-
-                <div className="flex justify-end gap-3 pt-4">
-                    <button onClick={onClose} className="px-4 py-2 rounded bg-white/5 hover:bg-white/10">
-                        Cancel
-                    </button>
-                    <button onClick={() => onSave({ title, description })} className="px-4 py-2 rounded bg-green-600 hover:bg-green-700">
-                        Save
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// =====================
-// Assignment Modal (ItemModal) — оставлено как есть
-// =====================
-function ItemModal({ open, onClose, onSave, initial }: any) {
-    const [title, setTitle] = useState(initial?.title || "");
-    const [description, setDescription] = useState(initial?.description || "");
-    const [type, setType] = useState(initial?.type || "text");
-    const [options, setOptions] = useState(initial?.options || ["", "", "", ""]);
-    const [correctOption, setCorrectOption] = useState<number>(initial?.correctOption ?? 0);
-    const [codeLang, setCodeLang] = useState(initial?.codeLang || "");
-    const [codeStart, setCodeStart] = useState(initial?.codeStart || "");
-    const [expectedOutput, setExpectedOutput] = useState(initial?.expectedOutput || "");
-    const [expectedText, setExpectedText] = useState(initial?.expectedText || "");
-
-    if (!open) return null;
-
-    const handleSave = () => {
-        let data: any = { title, description, type };
-        if (type === "quiz") data = { ...data, options, correctOption };
-        else if (type === "code") data = { ...data, codeLang, codeStart, expectedOutput };
-        else if (type === "text") data = { ...data, expectedText };
-        onSave(data);
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white/10 border border-white/20 rounded-xl p-6 w-full max-w-md space-y-4 overflow-y-auto max-h-[90vh]">
-                <h2 className="text-xl font-bold mb-2">{initial ? "Edit Item" : "Add Item"}</h2>
-                <div className="space-y-2">
-                    <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-white/5 p-2 rounded border border-white/10 outline-none" placeholder="Title" />
-                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="w-full bg-white/5 p-2 rounded border border-white/10 outline-none h-20 resize-none" placeholder="Description" />
-                    <select value={type} onChange={(e) => setType(e.target.value)} className="w-full p-2  rounded bg-white/5 border border-white/10">
-                        <option value="text" className="bg-background-light dark:bg-background-dark">Text</option>
-                        <option value="quiz" className="bg-background-light dark:bg-background-dark">Quiz</option>
-                        <option value="code" className="bg-background-light dark:bg-background-dark">Code</option>
-                    </select>
-
-                    {type === "quiz" && options.map((opt: string, idx: number) => (
-                        <div key={idx} className="flex items-center gap-2">
-                            <input type="radio" checked={correctOption === idx} onChange={() => setCorrectOption(idx)} />
-                            <input value={opt} onChange={e => { const newOpts = [...options]; newOpts[idx] = e.target.value; setOptions(newOpts); }} className="flex-1 p-2 bg-white/5 rounded border border-white/10 outline-none" placeholder={`Option ${idx + 1}`} />
-                        </div>
-                    ))}
-
-                    {type === "code" && (
-                        <>
-                            <input value={codeLang} onChange={e => setCodeLang(e.target.value)} className="w-full p-2 bg-white/5 rounded border border-white/10" placeholder="Language" />
-                            <textarea value={codeStart} onChange={e => setCodeStart(e.target.value)} className="w-full p-2 bg-white/5 rounded border border-white/10 h-20 resize-none" placeholder="Starting code" />
-                            <textarea value={expectedOutput} onChange={e => setExpectedOutput(e.target.value)} className="w-full p-2 bg-white/5 rounded border border-white/10 h-20 resize-none" placeholder="Expected output" />
-                        </>
-                    )}
-
-                    {type === "text" && (
-                        <textarea value={expectedText} onChange={e => setExpectedText(e.target.value)} className="w-full p-2 bg-white/5 rounded border border-white/10 h-20 resize-none" placeholder="Expected text" />
-                    )}
-                </div>
-                <div className="flex justify-end gap-3 pt-4">
-                    <button onClick={onClose} className="px-4 py-2 rounded bg-white/5 hover:bg-white/10">Cancel</button>
-                    <button onClick={handleSave} className="px-4 py-2 rounded bg-green-600 hover:bg-green-700">Save</button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// =====================
-// Main component
-// =====================
 export default function CourseCurriculumEditor({
     modules,
     setModules
@@ -271,6 +129,7 @@ export default function CourseCurriculumEditor({
                 }),
             };
         }));
+        console.log(modules);
         setIsAssignmentModalOpen(false);
     };
     const editAssignment = (moduleId: number, lessonId: number, assignment: any) => {
@@ -302,7 +161,7 @@ export default function CourseCurriculumEditor({
         <section className="space-y-6">
             <h2 className="text-2xl font-bold">Course Curriculum (Editable)</h2>
             <div className="flex justify-end">
-                <button onClick={openAddModule} className="flex items-center gap-2 px-4 py-2 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition">
+                <button type="button" onClick={openAddModule} className="flex items-center gap-2 px-4 py-2 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition">
                     <Plus size={18} /> Add Module
                 </button>
             </div>
@@ -314,14 +173,14 @@ export default function CourseCurriculumEditor({
                             <div className="flex items-center">
                                 <div className="cursor-grab p-3 text-gray-400"><GripVertical size={18} /></div>
 
-                                <button onClick={() => toggleOpenModule(module.id)} className="flex-1 p-4 flex justify-between items-center text-left hover:bg-white/10 transition-colors">
+                                <button type="button" onClick={() => toggleOpenModule(module.id)} className="flex-1 p-4 flex justify-between items-center text-left hover:bg-white/10 transition-colors">
                                     <p className="bg-transparent outline-none font-semibold w-full">{module.title}</p>
                                     <span className="material-symbols-outlined text-gray-400 transition-transform duration-300" style={{ transform: `rotate(${module.id == openId ? -180 : 0}deg)` }}>expand_more</span>
                                 </button>
 
                                 <div className="pr-3 flex gap-2">
-                                    <button onClick={() => editModule(module)} className="p-2 hover:bg-white/5 rounded text-blue-400" title="Edit module"><Pencil size={16} /></button>
-                                    <button onClick={() => deleteModule(module.id)} className="p-2 hover:bg-white/5 rounded text-red-400" title="Delete module"><Trash2 size={16} /></button>
+                                    <button type="button" onClick={() => editModule(module)} className="p-2 hover:bg-white/5 rounded text-blue-400" title="Edit module"><Pencil size={16} /></button>
+                                    <button type="button" onClick={() => deleteModule(module.id)} className="p-2 hover:bg-white/5 rounded text-red-400" title="Delete module"><Trash2 size={16} /></button>
                                 </div>
                             </div>
 
@@ -335,11 +194,7 @@ export default function CourseCurriculumEditor({
                                                     <div className=" bg-white/5 rounded-lg border border-white/10 backdrop-blur-sm">
                                                         <div className="flex items-center gap-3 px-3">
                                                             <GripVertical size={16} className="text-gray-400 cursor-grab" />
-                                                            {/* <button onClick={() => toggleOpenLesson(module.id, lesson.id)} className="flex-1 p-4 flex justify-between items-center text-left hover:bg-white/10 transition-colors">
-                                                                <p className="font-semibold">{lesson.title}</p>
-                                                                <p className="text-xs text-gray-400">{lesson.description}</p>
-                                                            </button> */}
-                                                            <button onClick={() => toggleOpenLesson(lesson.id)}
+                                                            <button type="button" onClick={() => toggleOpenLesson(lesson.id)}
                                                                 className="flex-1 p-4 flex justify-between items-center text-left hover:bg-white/10 transition-colors">
                                                                 <p className="bg-transparent outline-none font-semibold w-full">{lesson.title}</p>
                                                                 <span className="material-symbols-outlined text-gray-400 transition-transform duration-300"
@@ -350,8 +205,8 @@ export default function CourseCurriculumEditor({
                                                                     expand_more
                                                                 </span>
                                                             </button>
-                                                            <button onClick={() => editLesson(module.id, lesson)} className="p-2 hover:bg-white/10 rounded text-blue-400"><Pencil size={16} /></button>
-                                                            <button onClick={() => deleteLesson(module.id, lesson.id)} className="p-2 hover:bg-white/10 rounded text-red-400"><Trash2 size={16} /></button>
+                                                            <button type="button" onClick={() => editLesson(module.id, lesson)} className="p-2 hover:bg-white/10 rounded text-blue-400"><Pencil size={16} /></button>
+                                                            <button type="button" onClick={() => deleteLesson(module.id, lesson.id)} className="p-2 hover:bg-white/10 rounded text-red-400"><Trash2 size={16} /></button>
                                                         </div>
 
                                                         {/* Assignments (drag) — visible only when lesson.isOpen */}
@@ -373,10 +228,10 @@ export default function CourseCurriculumEditor({
                                                                                         <div className="flex-1">
                                                                                             <p className="font-semibold">{assign.title} [{assign.type}]</p>
                                                                                             {assign.type === "quiz" && <p className="text-xs text-gray-400">Quiz — {assign.options?.filter(Boolean).length} options</p>}
-                                                                                            {assign.type === "code" && <p className="text-xs text-gray-400">Code — {assign.codeLang || "lang"}</p>}
+                                                                                            {assign.type === "code" && <p className="text-xs text-gray-400">Code — {assign.languageName || ""}</p>}
                                                                                         </div>
-                                                                                        <button onClick={() => editAssignment(module.id, lesson.id, assign)} className="p-2 hover:bg-white/10 rounded text-blue-400"><Pencil size={16} /></button>
-                                                                                        <button onClick={() => deleteAssignment(module.id, lesson.id, assign.id)} className="p-2 hover:bg-white/10 rounded text-red-400"><Trash2 size={16} /></button>
+                                                                                        <button type="button" onClick={() => editAssignment(module.id, lesson.id, assign)} className="p-2 hover:bg-white/10 rounded text-blue-400"><Pencil size={16} /></button>
+                                                                                        <button type="button" onClick={() => deleteAssignment(module.id, lesson.id, assign.id)} className="p-2 hover:bg-white/10 rounded text-red-400"><Trash2 size={16} /></button>
                                                                                     </div>
                                                                                 </Reorder.Item>
                                                                             ))}
@@ -386,7 +241,7 @@ export default function CourseCurriculumEditor({
                                                                     )}
 
                                                                     <div className="pt-2">
-                                                                        <button onClick={() => openAddAssignment(module.id, lesson.id)} className="flex items-center gap-2 px-3 py-1 bg-purple-600 rounded hover:bg-purple-700 text-white">
+                                                                        <button type="button" onClick={() => openAddAssignment(module.id, lesson.id)} className="flex items-center gap-2 px-3 py-1 bg-purple-600 rounded hover:bg-purple-700 text-white">
                                                                             <Plus size={16} /> Add Assignment
                                                                         </button>
                                                                     </div>

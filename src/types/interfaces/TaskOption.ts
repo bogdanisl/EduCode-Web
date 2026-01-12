@@ -4,4 +4,5 @@ export interface TaskOption {
     text: string,
     isCorrect: boolean,
     order: number
+    tempId?:number;
 }

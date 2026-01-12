@@ -9,6 +9,7 @@ export interface Module {
     createdAt: Date
     updatedAt: Date
     lessons: Partial<Lesson>[]
+    tempId?:number;
 }
 
 export interface CreateModule{

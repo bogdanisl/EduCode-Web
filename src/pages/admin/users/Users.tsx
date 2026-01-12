@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth, type User } from "../../../context/AuthProvider";
 import NotFound from "../../notFound";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 const formatDate = (timestamp: number) => {
     if (!timestamp) return "—";
@@ -57,9 +58,11 @@ export default function UsersPage() {
             if (!res.ok) throw new Error();
 
             setUserList(prev => prev.filter(u => u.id !== userId));
-            
+
         } catch {
-            alert("Failed to remove user");
+            toast.error("Failed to Remove user.", {
+                theme: "dark"
+            });
         }
     };
 
@@ -132,10 +135,10 @@ export default function UsersPage() {
                                 px-2 py-1 rounded-full text-xs font-semibold
                                 ${user.role === "admin"
                                             ? "bg-red-100 text-red-700"
-                                            : user.role == 'tester'? "bg-green-200 text-green-800" :"bg-blue-100 text-blue-700"}
+                                            : user.role == 'tester' ? "bg-green-200 text-green-800" : "bg-blue-100 text-blue-700"}
                             `}>
-                                
-                                        {user.role == 'tester'?'autor':user.role}
+
+                                        {user.role == 'tester' ? 'autor' : user.role}
                                     </span>
                                 </td>
 
@@ -163,6 +166,8 @@ export default function UsersPage() {
                     </tbody>
                 </table>
             </div>
+            <ToastContainer />
+
         </div>
 
     );

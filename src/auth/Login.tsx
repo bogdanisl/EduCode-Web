@@ -41,7 +41,7 @@ function Login() {
 
       const data = await response.json();
       setSuccess("Login successful!");
-      console.log("Logged in user:", data.user);
+      //console.log("Logged in user:", data.user);
       login(data.user)
       setEmail("");
       setPassword("");

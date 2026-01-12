@@ -29,7 +29,8 @@ const DashboardIndex: React.FC = () => {
                 const data = await response.json();
 
                 if (Array.isArray(data.progresses)) {
-                    setProgresses(data.progresses); // ← правильный массив
+                    setProgresses(data.progresses);
+                    console.log(data.progresses); // ← правильный массив
                 } else {
                     console.warn('Expected progresses array, got:', data);
                     setProgresses([]);

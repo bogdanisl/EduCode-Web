@@ -35,12 +35,12 @@ const CoursePage: React.FC = () => {
                     method: "POST",
                     credentials: "include",
                 });
-                console.log(response)
+               // console.log(response)
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 const data = await response.json()
-                console.log({ data })
+                //console.log({ data })
                 const enrollment = data.enrollment
                 if (enrollment != null) {
                     navigate(`/lesson/${enrollment.lessonId}`)
@@ -129,10 +129,11 @@ const CoursePage: React.FC = () => {
                     }
                 } else {
                     const data = await response.json();
-                    console.log({ data })
+                    //console.log({ data })
                     setCourse(data.course);
                     if (data.enrolled != null) {
                         setProgress(data.enrolled)
+                        console.log(data.enrolled)
                         setIsEnrolled(true)
                     }
                 }

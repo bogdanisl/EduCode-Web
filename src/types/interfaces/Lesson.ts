@@ -12,4 +12,5 @@ export interface Lesson {
     updatedAt: Date,
     module:Module
     tasks:Task[]
+    tempId?:number;
 }

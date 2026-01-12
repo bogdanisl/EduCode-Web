@@ -9,7 +9,7 @@ export default function TaskArea({ task, code, onCodeChange, isSubmitting, onSub
       <div className="border-b border-white/10 px-6 py-3 bg-[#16181f] flex items-center justify-between">
         {isCode && (
           <span className="text-sm font-mono text-gray-400">
-            <span className="text-white font-bold">{task.language || "JavaScript"}</span>
+            <span className="text-white font-bold">{task.languageName || "JavaScript"}</span>
           </span>
         )}
         <button
@@ -36,7 +36,7 @@ export default function TaskArea({ task, code, onCodeChange, isSubmitting, onSub
         {isCode && (
           <Editor
             height="100%"
-            defaultLanguage={task.language?.toLowerCase() || "typescript"}
+            defaultLanguage={task.languageName?.toLowerCase() || "typescript"}
             value={code}
             onChange={(v) => onCodeChange(v || "")}
             theme="vs-dark"

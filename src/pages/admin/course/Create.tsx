@@ -7,6 +7,7 @@ import type { Category } from "../../../types/interfaces/CourseCategory";
 import type { Module } from "../../../types/interfaces/Module";
 import CourseCurriculumEditor from "../components/LessonsEditor";
 import { Plus } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
 const API_URL = import.meta.env.VITE_API_URL;
 
 interface Difficulty {
@@ -114,6 +115,7 @@ export default function EditCoursePage() {
           }
 
           const { course } = await courseRes.json();
+          console.log(course);
 
           setTitle(course.title || "");
           setDescription(course.description || "");
@@ -182,7 +184,9 @@ export default function EditCoursePage() {
       setCategoryId(added.id);
       setIsCategoryModalOpen(false);
     } catch {
-      alert("Failed to add category");
+      toast.error("Failed to add category", {
+        theme: "dark"
+      });
     }
   }
 
@@ -212,8 +216,9 @@ export default function EditCoursePage() {
       setSubmitting(false);
       return;
     }
-
+    console.log(modules);
     const formData = new FormData();
+    console.log({ modules });
     formData.append("title", title);
     formData.append("description", description);
     formData.append("difficulty", difficulty);
@@ -230,6 +235,7 @@ export default function EditCoursePage() {
         body: formData,
         credentials: "include",
       });
+      //console.log(formData.getAll('modules'));
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -393,7 +399,7 @@ export default function EditCoursePage() {
                     value={difficulty}
                     onChange={(e) => {
                       setDifficulty(e.target.value);
-                      console.log(e.target.value);
+                      //console.log(e.target.value);
                       errors.difficulty && setErrors((p) => ({ ...p, difficulty: "" }));
                     }}
                     className={`mt-1 block w-full rounded-md border text-sm ${errors.difficulty
@@ -474,6 +480,8 @@ export default function EditCoursePage() {
         </div>
       </div>
       <ModuleCategory open={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onSave={handleAddCategory} errors={categoryModalErrors} />
+      <ToastContainer />
+
     </main>
   );
 }

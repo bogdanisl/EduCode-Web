@@ -13,4 +13,5 @@ export interface Task{
     createdAt:Date,
     updatedAt:Date,
     options?:TaskOption[]
+    tempId?:number;
 }

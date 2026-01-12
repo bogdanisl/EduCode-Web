@@ -44,9 +44,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [])
 
   const login = (userData: User) => {
-    console.log('login')
+    //console.log('login')
     setUser(userData)
-    console.log(userData)
+    //console.log(userData)
     localStorage.setItem("user", JSON.stringify(userData))
   }
 
