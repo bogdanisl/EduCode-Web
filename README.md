@@ -1,73 +1,93 @@
-# React + TypeScript + Vite
+# Frontend aplikacji edukacyjnej Educode
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend aplikacji internetowej wspierającej naukę programowania. Projekt został zrealizowany z wykorzystaniem biblioteki **React** oraz narzędzia **Vite**, które zapewnia szybkie uruchamianie środowiska deweloperskiego i efektywny proces budowania aplikacji.
 
-Currently, two official plugins are available:
+Frontend komunikuje się z backendem poprzez REST API i odpowiada za warstwę prezentacji oraz interakcję z użytkownikiem.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🛠️ Wykorzystane technologie
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- Vite
+- TypeScript
+- HTML5
+- CSS
+- Tailwind
+---
 
-## Expanding the ESLint configuration
+## 📦 Wymagania
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Przed uruchomieniem projektu wymagane są:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Node.js** (wersja 18 lub nowsza)
+- **npm** lub **yarn**
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Sprawdzenie wersji:
+```bash
+node -v
+npm -v
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🚀 Instalacja i uruchomienie
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 1️⃣ Klonowanie repozytorium
+
+```bash
+git clone https://github.com/bogdanisl/EduCode-Web
+cd EduCode-Web
 ```
+
+### 2️⃣ Instalacja zależności
+```bash
+npm install
+```
+lub
+```bash
+yarn install
+```
+
+### ⚙️ Konfiguracja API
+
+Adres backendu jest konfigurowany w pliku środowiskowym .env:
+```env
+VITE_API_URL=http://localhost:3333
+```
+
+⚠️ **Backend musi być uruchomiony, aby aplikacja działała poprawnie.**
+
+Repozytorium backendu:
+
+👉 https://github.com/bogdanisl/EduCode-Server
+
+### 3️⃣ Uruchomienie aplikacji
+
+Uruchom aplikację w trybie deweloperskim:
+```bash
+npm run dev
+```
+
+Aplikacja będzie dostępna pod adresem:
+
+http://localhost:5173
+
+---
+
+## 🔐 Role użytkowników
+
+Po pierwszym uruchomieniu aplikacji **pierwsze utworzone konto użytkownika automatycznie otrzymuje rolę administratora**.
+
+Każde kolejne konto rejestrowane w systemie otrzymuje domyślnie rolę **zwykłego użytkownika (`user`)**.
+
+Mechanizm ten umożliwia szybkie zainicjalizowanie systemu bez konieczności ręcznego przypisywania roli administratora w bazie danych.
+
+
+---
+
+
+
+## 📄 Informacje dodatkowe
+
+Projekt został zrealizowany jako część pracy dyplomowej i stanowi warstwę frontendową aplikacji internetowej do wspomagania nauki programowania
