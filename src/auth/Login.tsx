@@ -10,7 +10,7 @@ function Login() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
-  const {login} = useAuth()
+  const { login } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

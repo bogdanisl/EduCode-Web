@@ -12,5 +12,7 @@ export interface Course{
     rating?:number,
     tags?:string[],
     modules:Module[],
-    category:Category
+    category:Category,
+    isVisible:boolean,
+    totalLessons?:number
 }

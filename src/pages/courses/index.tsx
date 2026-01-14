@@ -51,7 +51,7 @@ export default function CoursesIndex() {
             }
         }
         fetchCourses()
-    })
+    },[])
 
     const handleApplyFilters = async (categories?: number[], difficulty?: string[], searchText?: string) => {
         setCategoriesFilter(categories || []);

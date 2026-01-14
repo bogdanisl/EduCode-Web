@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { TaskOption } from "../../../../types/interfaces/TaskOption";
+import MDEditor from "@uiw/react-md-editor";
 
 const formatLanguage = (lang: string): number => {
     //console.log(lang);
@@ -134,13 +135,13 @@ export default function ItemModal({ open, onClose, onSave, initial }: any) {
     const handleSave = () => {
         setErrors({});
         if (!validate()) {
-            
+
             console.log(errors)
             return;
         };
-        
+
         let data: any = { title, description, type };
-        
+
         if (type === "quiz") {
             data = {
                 ...data,
@@ -156,14 +157,14 @@ export default function ItemModal({ open, onClose, onSave, initial }: any) {
         else if (type === "text") {
             data = { ...data, correctOutput };
         }
-        
+
         onSave(data);
         console.log("1");
     };
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white/10 border border-white/20 rounded-xl p-6 w-full max-w-md space-y-4 overflow-y-auto max-h-[90vh]">
+            <div className="bg-white/10 border border-white/20 rounded-xl p-6 w-full max-w-7xl space-y-4 overflow-y-auto max-h-[90vh]">
                 <h2 className="text-xl font-bold mb-2">{initial ? "Edit Item" : "Add Item"}</h2>
                 <div className="space-y-2">
                     <input
@@ -172,14 +173,20 @@ export default function ItemModal({ open, onClose, onSave, initial }: any) {
                             setTitle(e.target.value);
                             errors.title && setErrors(p => ({ ...p, title: "" }));
                         }}
-                        className="w-full bg-white/5 p-2 rounded border border-white/10 outline-none"
+                        className=" bg-white/5 p-2 rounded border border-white/10 outline-none"
                     />
                     {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
-                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="w-full bg-white/5 p-2 rounded border border-white/10 outline-none h-20 resize-none" placeholder="Description" />
+                    <div className="bg-white/5 rounded border border-white/10">
+                        <MDEditor
+                            value={description}
+                            onChange={setDescription}
+                            height={200}
+                        />
+                    </div>
                     {errors.description && (
                         <p className="text-red-500 text-sm">{errors.description}</p>
                     )}
-                    <select value={type} onChange={(e) => setType(e.target.value)} className="w-full p-2  rounded bg-white/5 border border-white/10">
+                    <select value={type} onChange={(e) => setType(e.target.value)} className="w-[30%] p-2  rounded bg-white/5 border border-white/10">
                         <option value="text" className="bg-background-light dark:bg-background-dark">Text</option>
                         <option value="quiz" className="bg-background-light dark:bg-background-dark">Quiz</option>
                         <option value="code" className="bg-background-light dark:bg-background-dark">Code</option>
@@ -188,7 +195,7 @@ export default function ItemModal({ open, onClose, onSave, initial }: any) {
 
                     {type === "quiz" && options.map((opt, idx) => (
                         <div key={idx} className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2">
+                            <div className="flex w-[30%] items-center gap-2">
                                 <input
                                     type="radio"
                                     checked={correctOption === idx}
@@ -202,7 +209,7 @@ export default function ItemModal({ open, onClose, onSave, initial }: any) {
                                         setOptions(newOpts);
                                         errors[`option_${idx}`] && setErrors(p => ({ ...p, [`option_${idx}`]: "" }));
                                     }}
-                                    className="flex-1 p-2 bg-white/5 rounded border border-white/10 outline-none"
+                                    className="flex-1  p-2 bg-white/5 rounded border border-white/10 outline-none"
                                     placeholder={`Option ${idx + 1}`}
                                 />
                             </div>

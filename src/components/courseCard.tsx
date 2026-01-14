@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import type { Course } from '../types/interfaces/Course';
 import type { UserProgress } from '../types/interfaces/UserProgress';
+import { EyeOff } from 'lucide-react';
 
 interface CourseCardProps {
   course: Course;
@@ -15,14 +16,15 @@ export default function CourseCard({ course, progress }: CourseCardProps) {
 
   const handleViewCourse = () => {
     //console.log(progress)
-    if(progress){
+    if (progress) {
       navigate(`/lesson/${progress.lessonId}`)
     }
-    else{
+    else {
       navigate(`/courses/${course.id}`);
     }
   };
 
+  //console.log({ course })
   return (
     <div
       onClick={handleViewCourse}
@@ -40,8 +42,16 @@ export default function CourseCard({ course, progress }: CourseCardProps) {
 
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
-        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-1 group-hover:text-primary transition-colors">
-          {course.title}
+        <h3 className="flex items-center justify-between text-lg font-bold text-gray-800 dark:text-white mb-1 group-hover:text-primary transition-colors">
+          <span className="truncate">
+            {course.title}
+          </span>
+
+          {!course.isVisible && (
+            <span className="flex items-center gap-1 text-sm font-normal text-red-500">
+              <EyeOff size={16} />
+            </span>
+          )}
         </h3>
 
         {/* Description OR Progress Text */}
@@ -55,8 +65,8 @@ export default function CourseCard({ course, progress }: CourseCardProps) {
             <span
               key={tag}
               className={`text-xs font-medium px-2 py-1 rounded-full ${['JavaScript', 'Python', 'UI/UX', 'React', 'Node.js', 'Data Science'].includes(tag)
-                  ? 'bg-primary/20 text-primary'
-                  : 'bg-white/10 text-white/80'
+                ? 'bg-primary/20 text-primary'
+                : 'bg-white/10 text-white/80'
                 }`}
             >
               {tag}

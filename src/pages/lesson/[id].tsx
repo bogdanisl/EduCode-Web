@@ -6,6 +6,7 @@ import CodeConsole from "./components/CodeConsole";
 import TaskArea from "./components/TaskArea";
 import { toast, ToastContainer } from "react-toastify";
 import { X } from "lucide-react";
+import MDEditor from "@uiw/react-md-editor";
 
 
 const LessonPage: React.FC = () => {
@@ -224,19 +225,17 @@ const LessonPage: React.FC = () => {
         <div className="text-sm text-gray-400">Task {currentTaskIndex + 1} / {lesson.tasks.length}</div>
       </div>
       <div className="flex flex-1 overflow-hidden">
-        {/* Левая панель — оставляем тут (как ты просил) */}
         <div style={{ width: `${leftWidth}px` }} className="border-r border-white/10 p-6 bg-[#12151b] overflow-y-auto">
           <h2 className="text-2xl font-bold mb-4">{lesson.title}</h2>
           <p className="text-gray-300 mb-6">{lesson.description}</p>
           {(isCode || task.type === "quiz") && (
             <>
               <h3 className="text-xl font-bold mb-3">{task.title}</h3>
-              <div className="text-gray-300 prose prose-invert" dangerouslySetInnerHTML={{ __html: task.description }} />
+              <MDEditor.Markdown source={task.description || ""} />
             </>
           )}
         </div>
 
-        {/* Ресайзер слева */}
         <div
           onMouseDown={startLeftResize}
           className="w-1 bg-transparent hover:bg-white/20 cursor-col-resize"

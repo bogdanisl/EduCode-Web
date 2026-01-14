@@ -11,6 +11,43 @@ import type { UserProgress } from "../../types/interfaces/UserProgress";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+function removeIds<T>(data: T): T {
+    if (Array.isArray(data)) {
+        return data.map(removeIds) as T;
+    }
+
+    if (data !== null && typeof data === "object") {
+        const result: any = {};
+        for (const [key, value] of Object.entries(data)) {
+            if (key === "id") continue;
+            if (key === "createdBy") continue;
+            if (key === "createdAt") continue;
+            if (key === "updatedAt") continue;
+            
+            result[key] = removeIds(value);
+        }
+        return result;
+    }
+
+    return data;
+}
+
+function downloadJson(data: Course) {
+    const cleanedData = removeIds(data);
+
+    const json = JSON.stringify(cleanedData, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${data.title}.json`;
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
 const CoursePage: React.FC = () => {
     const { user, isAuthenticated } = useAuth();
     const { id } = useParams<{ id: string }>();
@@ -35,7 +72,7 @@ const CoursePage: React.FC = () => {
                     method: "POST",
                     credentials: "include",
                 });
-               // console.log(response)
+                // console.log(response)
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
@@ -93,7 +130,7 @@ const CoursePage: React.FC = () => {
                 } else {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-            } 
+            }
             else {
                 navigate('../')
             }
@@ -105,6 +142,45 @@ const CoursePage: React.FC = () => {
             setLoading(false);
         }
     }
+    const handleVisibility = async () => {
+        if (!id) {
+            setError("ID not founded in URL");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/course/${id}/visibility`, {
+                method: 'PATCH',
+                credentials: "include",
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    setError("Course not found");
+                } else {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+            }
+            else {
+                navigate('../')
+            }
+
+        } catch (err: any) {
+            console.error("Fetch error:", err);
+            setError(err.message || "Ошибка загрузки");
+        } finally {
+            setLoading(false);
+        }
+    }
+    const handleExport = async () => {
+        if (course) {
+            downloadJson(course);
+        }
+        else {
+            toast.error('Failed to find course. Update page and try again.')
+        }
+    }
 
 
     useEffect(() => {
@@ -114,7 +190,6 @@ const CoursePage: React.FC = () => {
                 setLoading(false);
                 return;
             }
-
             try {
                 const response = await fetch(`/api/course/${id}`, {
                     method: "GET",
@@ -129,11 +204,10 @@ const CoursePage: React.FC = () => {
                     }
                 } else {
                     const data = await response.json();
-                    //console.log({ data })
+
                     setCourse(data.course);
                     if (data.enrolled != null) {
                         setProgress(data.enrolled)
-                        console.log(data.enrolled)
                         setIsEnrolled(true)
                     }
                 }
@@ -187,11 +261,17 @@ const CoursePage: React.FC = () => {
                                             <div className="flex flex-col gap-4">
                                                 {(user?.role === "admin" || (user?.role === 'tester' && user?.id === course.createdBy)) && (
                                                     <>
+                                                        <button onClick={handleVisibility} className={`w-full h-12 px-4 ${course.isVisible ? 'bg-red-500' : 'bg-green-600'} text-white font-bold rounded-lg hover:${course.isVisible ? 'bg-red-500/90' : 'bg-green-600/90'} transition-colors`}>
+                                                            {course.isVisible ? 'Hide' : 'Publish'}
+                                                        </button>
                                                         <button onClick={handleEdit} className="w-full h-12 px-4 bg-yellow-500 text-white font-bold rounded-lg hover:bg-yellow-500/90 transition-colors">
                                                             Edit
                                                         </button>
                                                         <button onClick={handleDelete} className="w-full h-12 px-4 bg-red-500 text-white font-bold rounded-lg hover:bg-red-500/90 transition-colors">
                                                             Delete
+                                                        </button>
+                                                        <button onClick={handleExport} className="w-full h-12 px-4 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-500/90 transition-colors">
+                                                            Export
                                                         </button>
                                                         <br />
                                                     </>
