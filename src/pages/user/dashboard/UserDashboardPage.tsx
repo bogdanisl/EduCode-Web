@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthProvider";
-import NotFound from "../../NotFounPage";
+import NotFound from "../../NotFoundPage";
 import CoursesCarousel from "../../../components/CourseCarousel";
 import type { UserProgress } from "../../../types/userProgress";
 

@@ -1,4 +1,4 @@
-import NotFound from "../../NotFounPage";
+import NotFound from "../../NotFoundPage";
 import { useAuth } from "../../../context/AuthProvider";
 import { ToastContainer } from "react-toastify";
 import { useUsers } from "../hooks/useUsers";

@@ -4,7 +4,7 @@ import Login from "../pages/auth/LoginPage";
 import Register from "../pages/auth/RegisterPage";
 import ResetPassword from "../pages/auth/ResetPage";
 import CoursesIndex from "../pages/courses/CoursesPage";
-import NotFound from "../pages/NotFounPage";
+import NotFound from "../pages/NotFoundPage";
 import AddCoursePage from "../pages/admin/courses/CreateCoursePage";
 import DashboardIndex from "../pages/user/dashboard/UserDashboardPage";
 import LessonPage from "../pages/lesson/LessonPage";

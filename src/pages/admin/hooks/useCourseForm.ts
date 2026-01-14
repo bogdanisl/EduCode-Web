@@ -1,7 +1,7 @@
 // src/pages/admin/hooks/useCourseForm.ts
 import { useEffect, useState } from "react";
-import type { Category } from "../../../types/CourseCategory";
-import type { Module } from "../../../types/Module";
+import type { Category } from "../../../types/courseCategory";
+import type { Module } from "../../../types/module";
 
 interface UseCourseFormParams {
   courseId?: string;

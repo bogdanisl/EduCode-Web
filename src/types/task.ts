@@ -1,4 +1,4 @@
-import type { TaskOption } from "./TaskOption";
+import type { TaskOption } from "./taskOption";
 
 export interface Task{
     id:number,

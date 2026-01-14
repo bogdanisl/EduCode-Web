@@ -1,9 +1,9 @@
 // src/pages/EditCoursePage.tsx (рекомендую переименовать)
 import { useState, useRef } from "react";
 import { useAuth } from "../../../context/AuthProvider";
-import NotFound from "../../NotFounPage";
+import NotFound from "../../NotFoundPage";
 import { useParams } from "react-router-dom";
-import type { Module } from "../../../types/Module";
+import type { Module } from "../../../types/module";
 import CourseCurriculumEditor from "../components/LessonsEditor";
 import { Plus } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";

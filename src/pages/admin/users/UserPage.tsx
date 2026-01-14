@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import NotFound from "../../NotFounPage";
+import NotFound from "../../NotFoundPage";
 import { useAuth } from "../../../context/AuthProvider";
 import { ToastContainer } from "react-toastify";
 import { useUser } from "../hooks/useUser";

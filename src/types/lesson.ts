@@ -1,5 +1,5 @@
-import type { Module } from "./Module";
-import type { Task } from "./Task";
+import type { Module } from "./module";
+import type { Task } from "./task";
 
 export interface Lesson {
     id: number,

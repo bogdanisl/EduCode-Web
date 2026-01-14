@@ -1,5 +1,5 @@
-import type { Module } from "./Module";
-import type { Category } from "./CourseCategory";
+import type { Module } from "./module";
+import type { Category } from "./courseCategory";
 
 export interface Course{
     id:number,

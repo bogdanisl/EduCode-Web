@@ -1,6 +1,6 @@
 
-import type { Course } from "./Course";
-import type { Lesson } from "./Lesson";
+import type { Course } from "./course";
+import type { Lesson } from "./lesson";
 import type { User } from "./user";
 
 export interface UserProgress{
