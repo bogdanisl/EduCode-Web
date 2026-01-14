@@ -1,6 +1,7 @@
-import type { User } from "../../context/AuthProvider";
+
 import type { Course } from "./Course";
 import type { Lesson } from "./Lesson";
+import type { User } from "./user";
 
 export interface UserProgress{
     id:number,

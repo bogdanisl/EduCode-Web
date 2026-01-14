@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import type { Course } from '../../../types/interfaces/Course';
-import CourseCard from '../../../components/CourseCard';
-import type { UserProgress } from '../../../types/interfaces/UserProgress';
+import type { Course } from '../types/course';
+import CourseCard from './CourseCard';
+import type { UserProgress } from '../types/userProgress';
 
 interface CoursesCarouselProps {
   category?: string; // Опциональный параметр категории
@@ -54,7 +54,7 @@ const CoursesCarousel: React.FC<CoursesCarouselProps> = ({ category, coursesRef,
         setCourses(coursesFromProgress);
         setLoading(false);
       }
-      console.log({ courses })
+      //console.log({ courses })
       setLoading(false)
     }
 

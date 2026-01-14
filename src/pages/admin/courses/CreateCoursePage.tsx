@@ -1,116 +1,16 @@
 // src/pages/EditCoursePage.tsx (рекомендую переименовать)
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "../../../context/AuthProvider";
-import NotFound from "../../notFound";
+import NotFound from "../../NotFounPage";
 import { useParams } from "react-router-dom";
-import type { Category } from "../../../types/interfaces/CourseCategory";
-import type { Module } from "../../../types/interfaces/Module";
+import type { Module } from "../../../types/Module";
 import CourseCurriculumEditor from "../components/LessonsEditor";
 import { Plus } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
-import type { TaskOption } from "../../../types/interfaces/TaskOption";
-const API_URL = import.meta.env.VITE_API_URL;
-
-interface Difficulty {
-  id: number;
-  title: string;
-}
-
-const DIFFICULTIES: Difficulty[] = [
-  { id: 0, title: "beginner" },
-  { id: 1, title: "intermediate" },
-  { id: 2, title: "advanced" },
-];
-
-function ModuleCategory({ open, onClose, onSave, errors }: any) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white/10 border border-white/20 rounded-xl p-6 w-full max-w-md space-y-4">
-        <h2 className="text-xl font-bold mb-2">{"Add new category"}</h2>
-        <div className="space-y-2">
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-white/5 p-2 rounded border border-white/10 outline-none"
-            placeholder="Title"
-          />
-          {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
-
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-white/5 p-2 rounded border border-white/10 outline-none h-24 resize-none"
-            placeholder="Description"
-          />
-          {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
-
-        </div>
-        <div className="flex justify-end gap-3 pt-4">
-          <button onClick={onClose} className="px-4 py-2 rounded bg-white/5 hover:bg-white/10">
-            Cancel
-          </button>
-          <button onClick={() => onSave({ title, description })} className="px-4 py-2 rounded bg-green-600 hover:bg-green-700">
-            Save
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function validateCourseImport(data: any) {
-  if (!data || typeof data !== "object") {
-    throw new Error("Invalid JSON structure");
-  }
-
-  if (!data.title || !data.modules) {
-    throw new Error("Course must have title and modules");
-  }
-
-  if (!Array.isArray(data.modules)) {
-    throw new Error("Modules must be an array");
-  }
-  return data;
-}
-
-function generateId() {
-  return Date.now() + Math.floor(Math.random() * 10000);
-}
-
-function normalizeImportedCourse(course: any) {
-  return {
-    ...course,
-    id: generateId(),
-    modules: course.modules.map((m: any, mIndex: number) => ({
-      ...m,
-      id: generateId(),
-      order: mIndex,
-      lessons: (m.lessons || []).map((l: any, lIndex: number) => ({
-        ...l,
-        id: generateId(),
-        order: lIndex,
-        tasks: (l.tasks || []).map((t: any, tIndex: number) => ({
-          ...t,
-          id: generateId(),
-          order: tIndex,
-          options: (t.options || []).map((o: TaskOption, oIndex: number) => ({
-            ...o,
-            text: o.text || "",
-            id: generateId(),
-            order: oIndex,
-            isCorrect: Boolean(o.isCorrect),
-          })),
-        })),
-      })),
-    })),
-  };
-}
-
+import CategoryModal from "../components/modals/CategoryModal";
+import { useCourseForm } from "../hooks/useCourseForm";
+import { DIFFICULTIES } from "../../../types/difficulty";
+import { normalizeImportedCourse, validateCourseImport } from "../utils";
 
 export default function EditCoursePage() {
   const { role, user } = useAuth();
@@ -127,63 +27,29 @@ export default function EditCoursePage() {
   const [modules, setModules] = useState<Partial<Module>[]>([]);
   const [autorID, setAutorID] = useState<number | null>(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [categoryModalErrors, setCategoryModalErrors] = useState<{ title: string, description: string }>({ title: '', description: '' })
+  const [categoryModalErrors, setCategoryModalErrors] = useState<{
+    title?: string;
+    description?: string;
+  }>({});
 
-  // Data
-  const [categories, setCategories] = useState<Category[]>([]);
 
-  // UI
-  const [loading, setLoading] = useState(true);
+  const { categories, loading, error: loadError } = useCourseForm({
+    courseId: id,
+    isEditMode,
+    setTitle,
+    setDescription,
+    setDifficulty,
+    setCategoryId,
+    setModules,
+    setAutorID,
+    setImagePreview,
+  });
+
+
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Загрузка категорий + данных курса (если редактирование)
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        // Загружаем категории
-        const catRes = await fetch("/api/courses/category/list");
-        if (!catRes.ok) throw new Error("Failed to load categories");
-        const catData = await catRes.json();
-        setCategories(catData.categories || []);
-
-        // Если это редактирование — загружаем курс
-        if (isEditMode) {
-          const courseRes = await fetch(`/api/course/${id}`, {
-            credentials: "include",
-          });
-
-          if (!courseRes.ok) {
-            if (courseRes.status === 404) {
-              setErrors({ general: "Course not found" });
-            } else {
-              throw new Error("Failed to load course");
-            }
-            return;
-          }
-
-          const { course } = await courseRes.json();
-          console.log(course);
-
-          setTitle(course.title || "");
-          setDescription(course.description || "");
-          setDifficulty(String(course.difficulty ?? ""));
-          setCategoryId(String(course.categoryId ?? ""));
-          setAutorID(course.createdBy ?? null);
-          setModules(course.modules || []);
-          setImagePreview(`${API_URL}/assets/courses/covers/${course.id}.png`);
-        }
-      } catch (err) {
-        setErrors({ general: "Failed to load data. Please try again." });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInitialData();
-  }, [id, isEditMode]);
 
   // Обработчик изображения
   const handleImageChange = (file: File | undefined) => {
@@ -195,7 +61,6 @@ export default function EditCoursePage() {
     }
     if (file.size > 10 * 1024 * 1024) {
       setErrors((prev) => ({ ...prev, image: "Image must be under 10MB" }));
-      return;
       return;
     }
 
@@ -258,8 +123,6 @@ export default function EditCoursePage() {
         toast.success("Course imported successfully!", {
           theme: "dark"
         })
-
-        // fetch("/api/course/import", { ... })
 
       } catch (err: any) {
         alert(err.message || "Invalid course file");
@@ -330,14 +193,20 @@ export default function EditCoursePage() {
     }
   };
 
-  // Защита доступа
   if (role !== "admin" && role !== "tester") return <NotFound />;
 
-  // Пока грузим
   if (loading) {
     return (
       <main className="flex-grow flex items-center justify-center">
         <div className="text-xl">Loading course data...</div>
+      </main>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <main className="flex-grow flex items-center justify-center">
+        <p className="text-red-500">{loadError}</p>
       </main>
     );
   }
@@ -360,9 +229,9 @@ export default function EditCoursePage() {
           </div>
 
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {/* Основная колонка */}
+
             <div className="md:col-span-2 space-y-8">
-              {/* Информация о курсе */}
+
               <section className="space-y-4 rounded-xl border border-gray-200 dark:border-white/10 bg-white/5 p-6">
                 <h2 className="text-xl font-bold">Course Information</h2>
 
@@ -406,10 +275,8 @@ export default function EditCoursePage() {
                 </div>
               </section>
 
-              {/* Редактор уроков */}
               <CourseCurriculumEditor modules={modules} setModules={setModules} />
 
-              {/* Загрузка изображения */}
               <section className="space-y-4 rounded-xl border border-gray-200 dark:border-white/10 bg-white/5 p-6">
                 <h2 className="text-xl font-bold">Course Cover Image</h2>
 
@@ -463,7 +330,6 @@ export default function EditCoursePage() {
               </section>
             </div>
 
-            {/* Правая колонка */}
             <div className="space-y-8">
               <section className="space-y-5 rounded-xl border border-gray-200 dark:border-white/10 bg-white/5 p-6">
                 <h2 className="text-xl font-bold">Settings</h2>
@@ -579,7 +445,7 @@ export default function EditCoursePage() {
           </form>
         </div>
       </div>
-      <ModuleCategory open={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onSave={handleAddCategory} errors={categoryModalErrors} />
+      <CategoryModal open={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onSave={handleAddCategory} errors={categoryModalErrors} />
       <ToastContainer />
 
     </main>

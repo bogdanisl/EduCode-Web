@@ -1,16 +1,16 @@
 import { Routes, Route } from "react-router-dom";
 import App from "../App";
-import Login from "../auth/Login";
-import Register from "../auth/Register";
-import ResetPassword from "../auth/Reset";
-import CoursesIndex from "../pages/courses";
-import NotFound from "../pages/notFound";
-import AddCoursePage from "../pages/admin/course/Create";
-import DashboardIndex from "../pages/user/dashboard";
-import LessonPage from "../pages/lesson/[id]";
-import CoursePage from "../pages/courses/[id]";
-import UsersPage from "../pages/admin/users/Users";
-import EditUserPage from "../pages/admin/users/[id]";
+import Login from "../pages/auth/LoginPage";
+import Register from "../pages/auth/RegisterPage";
+import ResetPassword from "../pages/auth/ResetPage";
+import CoursesIndex from "../pages/courses/CoursesPage";
+import NotFound from "../pages/NotFounPage";
+import AddCoursePage from "../pages/admin/courses/CreateCoursePage";
+import DashboardIndex from "../pages/user/dashboard/UserDashboardPage";
+import LessonPage from "../pages/lesson/LessonPage";
+import CoursePage from "../pages/courses/CoursePage";
+import UsersPage from "../pages/admin/users/UsersPage";
+import EditUserPage from "../pages/admin/users/UserPage";
 
 
 export default function AppRoutes() {

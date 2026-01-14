@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import './App.scss';
-import './index.scss'
+import './styles/index.scss'
 import { useAuth } from './context/AuthProvider';
-import HomeIndex from './pages/home';
+import HomeIndex from './pages/home/HomePage';
 
 
 function App() {

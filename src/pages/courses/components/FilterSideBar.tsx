@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Category } from "../../../types/interfaces/CourseCategory";
+import type { Category } from "../../../types/CourseCategory";
 
 interface FiltersSidebarProps {
   apply: (

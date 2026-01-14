@@ -1,7 +1,7 @@
 // LessonPage.tsx
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import type { Lesson } from "../../types/interfaces/Lesson";
+import type { Lesson } from "../../types/Lesson";
 import CodeConsole from "./components/CodeConsole";
 import TaskArea from "./components/TaskArea";
 import { toast, ToastContainer } from "react-toastify";

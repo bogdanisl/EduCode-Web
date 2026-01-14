@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { TaskOption } from "../../../../types/interfaces/TaskOption";
+import type { TaskOption } from "../../../../types/TaskOption";
 import MDEditor from "@uiw/react-md-editor";
 
 const formatLanguage = (lang: string): number => {

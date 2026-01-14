@@ -5,7 +5,7 @@ import CourseGrid from "./components/CourseGrid";
 import FiltersSidebar from "./components/FilterSideBar";
 import Pagination from "./components/Pagination";
 import SortChips from "./components/SortChips";
-import type { Course } from "../../types/interfaces/Course";
+import type { Course } from "../../types/Course";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
 

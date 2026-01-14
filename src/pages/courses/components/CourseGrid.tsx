@@ -1,6 +1,6 @@
 // src/components/courses/CourseGrid.tsx
 
-import type { Course } from '../../../types/interfaces/Course';
+import type { Course } from '../../../types/Course';
 import CourseCard from '../../../components/CourseCard';
 
 interface CourseGridProps {

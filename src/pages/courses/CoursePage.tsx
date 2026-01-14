@@ -2,12 +2,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
-import NotFound from "../notFound";
-import type { Course } from "../../types/interfaces/Course";
+import NotFound from "../NotFounPage";
+import type { Course } from "../../types/Course";
 import CourseCurriculum from "./components/CourseCurriculum";
-import CoursesCarousel from "../home/components/courseCarousel";
+import CoursesCarousel from "../../components/CourseCarousel";
 import { ToastContainer, toast } from 'react-toastify';
-import type { UserProgress } from "../../types/interfaces/UserProgress";
+import type { UserProgress } from "../../types/UserProgress";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
