@@ -11,7 +11,7 @@ function Register() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
-  const {login} = useAuth()
+  const { login } = useAuth()
 
 
   const handleRegister = (e: React.FormEvent) => {

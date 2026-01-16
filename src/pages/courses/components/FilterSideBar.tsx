@@ -54,36 +54,36 @@ export default function FiltersSidebar({ apply }: FiltersSidebarProps) {
 
   return (
     <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0">
-      <div className="flex flex-col gap-4 bg-white/5 rounded-xl p-4">
-        <h2 className="text-white text-lg font-bold">Filters</h2>
+      <div className="flex flex-col gap-4 bg-[#F6F7F8] dark:bg-gray-800/50 rounded-xl p-4">
+        <h2 className="text-gray-900 dark:text-white text-lg font-bold">Filters</h2>
 
         {/* Search */}
         <input
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="Search courses..."
-          className="h-11 rounded-lg bg-black/20 text-white px-4 outline-none focus:ring-2 focus:ring-primary/50"
+          className="h-11 rounded-lg bg-gray-100/50 dark:bg-gray-700/50 text-gray-900 dark:text-white px-4 outline-none focus:ring-2 focus:ring-primary/50"
         />
 
         {/* Categories */}
-        <div className="border-t border-white/10 pt-4">
-          <h3 className="font-semibold text-white mb-2">Topic</h3>
+        <div className="border-t border-gray-300/20 dark:border-gray-500/20 pt-4">
+          <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Topic</h3>
           {categories.map((category) => (
             <label key={category.id} className="flex items-center gap-2">
               <input
                 type="checkbox"
-                className="h-4 w-4 rounded border-white/20 bg-transparent text-primary"
+                className="h-4 w-4 rounded border-gray-400/50 dark:border-gray-500/50 bg-transparent text-primary"
                 checked={selectedCategories.includes(Number(category.id))}
                 onChange={() => toggleCategory(Number(category.id))}
               />
-              <span className="text-white/80">{category.name}</span>
+              <span className="text-gray-700 dark:text-gray-300">{category.name}</span>
             </label>
           ))}
         </div>
 
         {/* Difficulty */}
-        <div className="border-t border-white/10 pt-4">
-          <h3 className="font-semibold text-white mb-2">Difficulty</h3>
+        <div className="border-t border-gray-300/20 dark:border-gray-500/20 pt-4">
+          <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Difficulty</h3>
           {[
             { label: "Beginner", value: 1 },
             { label: "Intermediate", value: 2 },
@@ -91,18 +91,18 @@ export default function FiltersSidebar({ apply }: FiltersSidebarProps) {
           ].map((level) => (
             <label key={level.value} className="flex items-center gap-2">
               <input
-                className="h-4 w-4 rounded border-white/20 bg-transparent text-primary"
+                className="h-4 w-4 rounded border-gray-400/50 dark:border-gray-500/50 bg-transparent text-primary"
                 type="checkbox"
                 checked={selectedDifficulty.includes(level.label.toLowerCase())}
                 onChange={() => toggleDifficulty(level.label.toLowerCase())}
               />
-              <span className="text-white/80">{level.label}</span>
+              <span className="text-gray-700 dark:text-gray-300">{level.label}</span>
             </label>
           ))}
         </div>
 
         {/* Buttons */}
-        <div className="border-t border-white/10 pt-4 flex flex-col gap-2">
+        <div className="border-t border-gray-300/20 dark:border-gray-500/20 pt-4 flex flex-col gap-2">
           <button
             onClick={handleApply}
             className="h-10 rounded-lg bg-primary text-white font-bold hover:bg-primary/90"
@@ -112,7 +112,7 @@ export default function FiltersSidebar({ apply }: FiltersSidebarProps) {
 
           <button
             onClick={handleReset}
-            className="h-10 rounded-lg bg-white/10 text-white hover:bg-white/20"
+            className="h-10 rounded-lg bg-gray-200/20 dark:bg-gray-700/30 text-gray-900 dark:text-white hover:bg-gray-300/30 dark:hover:bg-gray-600/30"
           >
             Reset
           </button>

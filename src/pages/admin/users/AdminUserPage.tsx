@@ -4,7 +4,7 @@ import { useAuth } from "../../../context/AuthProvider";
 import { ToastContainer } from "react-toastify";
 import { useUser } from "../hooks/useUser";
 
-export default function EditUserPage() {
+export default function AdminEditUserPage() {
   const { role } = useAuth();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();

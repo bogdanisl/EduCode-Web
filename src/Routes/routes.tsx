@@ -10,7 +10,12 @@ import DashboardIndex from "../pages/user/dashboard/UserDashboardPage";
 import LessonPage from "../pages/lesson/LessonPage";
 import CoursePage from "../pages/courses/CoursePage";
 import UsersPage from "../pages/admin/users/UsersPage";
-import EditUserPage from "../pages/admin/users/UserPage";
+import ProfilePage from "../pages/user/ProfilePage";
+import AdminEditUserPage from "../pages/admin/users/AdminUserPage";
+import ArticlesPage from "../pages/article/ArticlesPage";
+import ArticleCreatePage from "../pages/admin/articles/ArticleCreatePage";
+import ArticlePage from "../pages/article/ArticlePage";
+import AboutPage from "../pages/AboutPage";
 
 
 export default function AppRoutes() {
@@ -18,6 +23,10 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/" element={<App />} />
       <Route path="/courses" element={<CoursesIndex />} />
+      <Route path="/articles" element={<ArticlesPage />} />
+      <Route path="/articles/:id" element={<ArticlePage />} />
+      <Route path='/about-us' element={<AboutPage/>}/>
+      <Route path="/admin/article/create" element={<ArticleCreatePage />} />
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/register" element={<Register />} />
       <Route path="auth/reset" element={<ResetPassword/>}></Route>
@@ -28,7 +37,8 @@ export default function AppRoutes() {
       <Route path="/courses/:id" element={<CoursePage />} />
       <Route path="/lesson/:id" element={<LessonPage />} />
       <Route path="/users" element={<UsersPage />} />
-      <Route path="/users/:id" element={<EditUserPage />} />
+      <Route path="/users/:id" element={<AdminEditUserPage />} />
+      <Route path="/profile" element={<ProfilePage />} />
     </Routes>
   );
 }

@@ -19,7 +19,7 @@ export default function ModuleModal({ open, onClose, onSave, initial }: any) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white/10 border border-white/20 rounded-xl p-6 w-full max-w-7xl space-y-4">
+      <div className="bg-white/10 border border-white/20 rounded-xl p-6 w-full max-w-3xl space-y-4">
         <h2 className="text-xl font-bold mb-2">{initial ? "Edit Module" : "Add new Module"}</h2>
         <div className="space-y-2">
           <input

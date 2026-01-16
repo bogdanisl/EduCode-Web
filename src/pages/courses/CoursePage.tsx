@@ -8,46 +8,10 @@ import CourseCurriculum from "./components/CourseCurriculum";
 import CoursesCarousel from "../../components/CourseCarousel";
 import { ToastContainer, toast } from 'react-toastify';
 import type { UserProgress } from "../../types/userProgress";
+import { downloadJson } from "./utils";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-function removeIds<T>(data: T): T {
-    if (Array.isArray(data)) {
-        return data.map(removeIds) as T;
-    }
-
-    if (data !== null && typeof data === "object") {
-        const result: any = {};
-        for (const [key, value] of Object.entries(data)) {
-            if (key === "id") continue;
-            if (key === "createdBy") continue;
-            if (key === "createdAt") continue;
-            if (key === "updatedAt") continue;
-            
-            result[key] = removeIds(value);
-        }
-        return result;
-    }
-
-    return data;
-}
-
-function downloadJson(data: Course) {
-    const cleanedData = removeIds(data);
-
-    const json = JSON.stringify(cleanedData, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${data.title}.json`;
-    document.body.appendChild(a);
-    a.click();
-
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
 const CoursePage: React.FC = () => {
     const { user, isAuthenticated } = useAuth();
     const { id } = useParams<{ id: string }>();
@@ -186,7 +150,7 @@ const CoursePage: React.FC = () => {
     useEffect(() => {
         const fetchCourse = async () => {
             if (!id) {
-                setError("ID не найден в URL");
+                setError("ID not found");
                 setLoading(false);
                 return;
             }
@@ -214,7 +178,7 @@ const CoursePage: React.FC = () => {
 
             } catch (err: any) {
                 console.error("Fetch error:", err);
-                setError(err.message || "Ошибка загрузки");
+                setError(err.message || "Loading error");
             } finally {
                 setLoading(false);
             }
@@ -229,29 +193,30 @@ const CoursePage: React.FC = () => {
     if (!course) return null;
 
     return (
-        <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark font-display text-white">
+        <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-white">
             <div className="layout-container flex h-full grow flex-col">
                 <main className="flex-grow">
                     <div className="px-4 sm:px-10 md:px-20 lg:px-40 py-10 md:py-16">
                         <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-12">
+
                             {/* Left Column */}
                             <div className="lg:col-span-2 space-y-12">
                                 <section>
                                     <div className="space-y-4">
                                         <p className="text-primary font-bold text-sm">{course.category.name}</p>
-                                        <h1 className="text-4xl sm:text-5xl font-bold tracking-tighter">{course.title}</h1>
-                                        <p className="text-gray-400 max-w-3xl">{course.description}</p>
+                                        <h1 className="text-4xl sm:text-5xl font-bold tracking-tighter text-gray-900 dark:text-white">{course.title}</h1>
+                                        <p className="text-gray-600 dark:text-gray-400 max-w-3xl">{course.description}</p>
                                     </div>
                                 </section>
 
-                                {/* Раскрываемый Curriculum с анимацией */}
+                                {/* Curriculum */}
                                 <CourseCurriculum modules={course.modules} />
                             </div>
 
                             {/* Right Column - Sticky Card */}
                             <div className="lg:col-span-1">
                                 <div className="sticky top-24 space-y-6">
-                                    <div className="border border-white/10 rounded-xl bg-black/20 overflow-hidden">
+                                    <div className="border border-gray-300/20 dark:border-gray-700/30 rounded-xl bg-gray-100/10 dark:bg-gray-800/30 overflow-hidden">
                                         <img
                                             src={`${API_URL}/assets/courses/covers/${course.id}.png`}
                                             alt={course.title}
@@ -261,46 +226,57 @@ const CoursePage: React.FC = () => {
                                             <div className="flex flex-col gap-4">
                                                 {(user?.role === "admin" || (user?.role === 'tester' && user?.id === course.createdBy)) && (
                                                     <>
-                                                        <button onClick={handleVisibility} className={`w-full h-12 px-4 ${course.isVisible ? 'bg-red-500' : 'bg-green-600'} text-white font-bold rounded-lg hover:${course.isVisible ? 'bg-red-500/90' : 'bg-green-600/90'} transition-colors`}>
+                                                        <button
+                                                            onClick={handleVisibility}
+                                                            className={`w-full h-12 px-4 text-white font-bold rounded-lg transition-colors ${course.isVisible
+                                                                    ? 'bg-red-500 hover:bg-red-500/90'
+                                                                    : 'bg-green-600 hover:bg-green-600/90'
+                                                                }`}
+                                                        >
                                                             {course.isVisible ? 'Hide' : 'Publish'}
                                                         </button>
-                                                        <button onClick={handleEdit} className="w-full h-12 px-4 bg-yellow-500 text-white font-bold rounded-lg hover:bg-yellow-500/90 transition-colors">
-                                                            Edit
-                                                        </button>
-                                                        <button onClick={handleDelete} className="w-full h-12 px-4 bg-red-500 text-white font-bold rounded-lg hover:bg-red-500/90 transition-colors">
-                                                            Delete
-                                                        </button>
-                                                        <button onClick={handleExport} className="w-full h-12 px-4 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-500/90 transition-colors">
-                                                            Export
-                                                        </button>
-                                                        <br />
+                                                        <button className="w-full h-12 px-4 bg-yellow-500 hover:bg-yellow-500/90 text-white font-bold rounded-lg transition-colors" onClick={handleEdit}>Edit</button>
+                                                        <button className="w-full h-12 px-4 bg-red-500 hover:bg-red-500/90 text-white font-bold rounded-lg transition-colors" onClick={handleDelete}>Delete</button>
+                                                        <button className="w-full h-12 px-4 bg-blue-500 hover:bg-blue-500/90 text-white font-bold rounded-lg transition-colors" onClick={handleExport}>Export</button>
                                                     </>
                                                 )}
+
                                                 {!isAuthenticated && (
-                                                    <button onClick={singInForStart} className="w-full h-12 px-4 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors">
+                                                    <button
+                                                        onClick={singInForStart}
+                                                        className="w-full h-12 px-4 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg transition-colors"
+                                                    >
                                                         Sign in For Start
                                                     </button>
                                                 )}
+
                                                 {(isAuthenticated && !isEnrolled) && (
                                                     <>
-                                                        <button onClick={handleEnroll} className="w-full h-12 px-4 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors">
+                                                        <button
+                                                            onClick={handleEnroll}
+                                                            className="w-full h-12 px-4 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg transition-colors"
+                                                        >
                                                             Start Now
                                                         </button>
-                                                        <button className="w-full h-12 px-4 bg-white/10 text-white font-bold rounded-lg hover:bg-white/20 transition-colors">
+                                                        <button className="w-full h-12 px-4 bg-gray-200/10 dark:bg-gray-700/30 text-gray-900 dark:text-white font-bold rounded-lg hover:bg-gray-300/20 dark:hover:bg-gray-600/30 transition-colors">
                                                             Add to Favorite
                                                         </button>
                                                     </>
                                                 )}
+
                                                 {(isAuthenticated && isEnrolled && progress) && (
                                                     <>
-                                                        <button onClick={handleContinue} className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary hover:bg-primary/90 text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] transition-colors">
+                                                        <button
+                                                            onClick={handleContinue}
+                                                            className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary hover:bg-primary/90 text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] transition-colors"
+                                                        >
                                                             <span className="material-symbols-outlined">play_arrow</span>
                                                             <span className="truncate">Continue Learning</span>
                                                         </button>
-                                                        <p className="text-sm text-gray-500 dark:text-[#9dabb9] flex-1">
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400 flex-1">
                                                             {progress != null ? `${progress.progressPercent}% complete` : course.description}
                                                         </p>
-                                                        <div className="">
+                                                        <div>
                                                             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
                                                                 <div
                                                                     className="h-full bg-primary transition-all duration-500 ease-out"
@@ -311,9 +287,10 @@ const CoursePage: React.FC = () => {
                                                     </>
                                                 )}
                                             </div>
-                                            <div className="space-y-3 pt-4 border-t border-white/10">
-                                                <h3 className="font-bold">This course includes:</h3>
-                                                <ul className="space-y-2 text-gray-300 text-sm">
+
+                                            <div className="space-y-3 pt-4 border-t border-gray-300/20 dark:border-gray-700/30">
+                                                <h3 className="font-bold text-gray-900 dark:text-white">This course includes:</h3>
+                                                <ul className="space-y-2 text-gray-600 dark:text-gray-300 text-sm">
                                                     <li className="flex items-center gap-3">
                                                         <span className="material-symbols-outlined text-primary">play_circle</span>
                                                         22 hours of on-demand video
@@ -336,11 +313,16 @@ const CoursePage: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
+
                         </div>
+
+                        {/* More Courses */}
                         <div className="mx-auto max-w-7xl mt-20">
                             <section>
                                 <div className="space-y-4">
-                                    <h3 className="text-2xl sm:text-3xl font-bold tracking-tighter">More for {course.category.name}</h3>
+                                    <h3 className="text-2xl sm:text-3xl font-bold tracking-tighter text-gray-900 dark:text-white">
+                                        More for {course.category.name}
+                                    </h3>
                                     <CoursesCarousel category={course.category.id} />
                                 </div>
                             </section>
@@ -350,6 +332,7 @@ const CoursePage: React.FC = () => {
             </div>
             <ToastContainer />
         </div>
+
     );
 };
 
