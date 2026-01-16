@@ -1,7 +1,7 @@
 import { useState, type JSX } from "react";
 import { GripVertical, Plus, Pencil, Trash2 } from "lucide-react";
 import { motion, Reorder } from "framer-motion";
-import type { Module } from "../../../types/interfaces/Module";
+import type { Module } from "../../../types/module";
 import ModuleModal from "./modals/ModuleModal";
 import LessonModal from "./modals/LessonModal";
 import ItemModal from "./modals/ItemModal";

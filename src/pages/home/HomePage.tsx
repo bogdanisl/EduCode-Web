@@ -1,9 +1,9 @@
 // src/App.tsx
 import React from "react";
-import Hero from "./components/hero";
-import CoursesCarousel from "./components/courseCarousel";
-import AboutMission from "./components/ourMission";
-import BlogList from "./components/blogList";
+import Hero from "./components/Hero";
+import CoursesCarousel from "../../components/CourseCarousel";
+import AboutMission from "./components/OurMission";
+import BlogList from "./components/BlogList";
 
 
 const HomeIndex: React.FC = () => {

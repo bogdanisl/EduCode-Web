@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { TaskOption } from "../../../../types/interfaces/TaskOption";
+import type { TaskOption } from "../../../../types/taskOption";
 import MDEditor from "@uiw/react-md-editor";
 
 const formatLanguage = (lang: string): number => {
@@ -164,7 +164,7 @@ export default function ItemModal({ open, onClose, onSave, initial }: any) {
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white/10 border border-white/20 rounded-xl p-6 w-full max-w-7xl space-y-4 overflow-y-auto max-h-[90vh]">
+            <div className="bg-white/10 border border-white/20 rounded-xl p-6 w-full max-w-3xl space-y-4 overflow-y-auto max-h-[90vh]">
                 <h2 className="text-xl font-bold mb-2">{initial ? "Edit Item" : "Add Item"}</h2>
                 <div className="space-y-2">
                     <input

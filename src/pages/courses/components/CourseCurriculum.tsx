@@ -1,6 +1,6 @@
 // src/components/CourseCurriculum.tsx
 import { useState } from "react";
-import type { Module } from "../../../types/interfaces/Module";
+import type { Module } from "../../../types/module";
 
 interface CourseCurriculumProps {
   modules: Module[];

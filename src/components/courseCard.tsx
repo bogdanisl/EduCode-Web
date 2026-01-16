@@ -1,7 +1,7 @@
 // src/components/courses/CourseCard.tsx
 import { useNavigate } from 'react-router-dom';
-import type { Course } from '../types/interfaces/Course';
-import type { UserProgress } from '../types/interfaces/UserProgress';
+import type { Course } from '../types/course';
+import type { UserProgress } from '../types/userProgress';
 import { EyeOff } from 'lucide-react';
 
 interface CourseCardProps {

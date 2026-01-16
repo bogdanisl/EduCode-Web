@@ -1,9 +1,10 @@
 import { useState } from "react";
-import "../styles/_form.scss";
+import "../../styles/_form.scss";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthProvider";
+import { useAuth } from "../../context/AuthProvider";
 
-function Login() {
+function Register() {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -12,49 +13,49 @@ function Login() {
   const navigate = useNavigate();
   const { login } = useAuth()
 
-  const handleLogin = async (e: React.FormEvent) => {
+
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrors({});
     setSuccess("");
 
-    try {
-      const response = await fetch("/api/v1/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-        credentials: "include", // Important for session cookies
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        const newErrors: { [key: string]: string } = {};
-        if (data.code === "INVALID_EMAIL" || data.code === "EMAIL_REQUIRED" || data.code === "USER_NOT_FOUND") {
-          newErrors.email = data.message;
-        } else if (data.code === "INVALID_PASSWORD" || data.code === "PASSWORD_REQUIRED") {
-          newErrors.password = data.message;
-        } else {
-          newErrors.general = data.message;
+    fetch("/api/v1/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fullName, email, password }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((data) => {
+            // Map backend code to specific field if possible
+            const newErrors: { [key: string]: string } = {};
+            if (data.code === "INVALID_EMAIL" || data.code === "EMAIL_EXISTS") newErrors.email = data.message;
+            else if (data.code === "INVALID_FULLNAME") newErrors.fullName = data.message;
+            else if (data.code === "INVALID_PASSWORD") newErrors.password = data.message;
+            else newErrors.general = data.message;
+            throw newErrors;
+          });
         }
-        throw newErrors;
-      }
-
-      const data = await response.json();
-      setSuccess("Login successful!");
-      //console.log("Logged in user:", data.user);
-      login(data.user)
-      setEmail("");
-      setPassword("");
-      navigate(-1)
-    } catch (err: any) {
-      if (typeof err === "object") setErrors(err);
-      else setErrors({ general: err.message || "Login failed" });
-    } finally {
-      setLoading(false);
-    }
+        return response.json();
+      })
+      .then((data) => {
+        login(data.user)
+        navigate('../')
+        setSuccess("Registration successful!");
+        setFullName("");
+        setEmail("");
+        setPassword("");
+        //console.log("Registered user:", data);
+      })
+      .catch((err: any) => {
+        if (typeof err === "object") setErrors(err);
+        else setErrors({ general: err.message || "Registration failed" });
+      })
+      .finally(() => setLoading(false));
   };
 
-  // Clear errors on typing
+  // Clear error on typing
   const handleChange = (field: string, value: string, setter: (v: string) => void) => {
     setter(value);
     if (errors[field]) setErrors({ ...errors, [field]: "" });
@@ -63,9 +64,22 @@ function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#1a202c]">
       <div className="form-card w-full max-w-md">
-        <h1 className="text-3xl font-bold text-[#63b3ed] mb-6">Welcome Back</h1>
+        <h1 className="text-3xl font-bold text-[#63b3ed] mb-6">Create your account</h1>
 
-        <form className="flex flex-col gap-4" onSubmit={handleLogin} noValidate>
+        <form className="flex flex-col gap-4" onSubmit={handleRegister} noValidate>
+          {/* Full Name */}
+          <div>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={fullName}
+              onChange={(e) => handleChange("fullName", e.target.value, setFullName)}
+              className={`input-field w-full ${errors.fullName ? "border-red-500 animate-shake" : ""}`}
+              required
+            />
+            {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+          </div>
+
           {/* Email */}
           <div>
             <input
@@ -93,7 +107,7 @@ function Login() {
           </div>
 
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
@@ -126,15 +140,9 @@ function Login() {
         </div>
 
         <p className="text-center text-[#a0aec0] text-sm mt-6">
-          Don't have an account?{" "}
-          <a href="/auth/register" className="text-[#63b3ed] font-medium hover:underline">
-            Register
-          </a>
-        </p>
-        <p className="text-center text-[#a0aec0] text-sm mt-6">
-          Forgot password?{" "}
-          <a href="/auth/reset" className="text-[#63b3ed] font-medium hover:underline">
-            Reset
+          Already have an account?{" "}
+          <a href="/auth/login" className="text-[#63b3ed] font-medium hover:underline">
+            Log in
           </a>
         </p>
       </div>
@@ -142,4 +150,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;

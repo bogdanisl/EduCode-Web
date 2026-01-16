@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
-import "../styles/_form.scss"
+import "../../styles/_form.scss"
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "../context/AuthProvider"
+import { useAuth } from "../../context/AuthProvider"
 
 type Step = "email" | "code" | "new-password"
 

@@ -1,12 +1,14 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.scss";
-import "./index.css";
+import "./styles/index.scss";
+import "./styles/index.css";
 import { BrowserRouter, useLocation } from "react-router-dom";
 import AppRoutes from "./Routes/routes.tsx";
-import Header from "./components/header.tsx";
-import Footer from "./components/footer.tsx";
+
 import { AuthProvider } from "./context/AuthProvider.tsx";
+import Footer from "./components/Footer.tsx";
+import Header from "./components/Header.tsx";
+
 
 const LayoutWrapper = () => {
   const location = useLocation();

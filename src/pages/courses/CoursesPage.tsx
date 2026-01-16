@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import CourseGrid from "./components/CourseGrid";
 import FiltersSidebar from "./components/FilterSideBar";
-import Pagination from "./components/Pagination";
 import SortChips from "./components/SortChips";
-import type { Course } from "../../types/interfaces/Course";
+import type { Course } from "../../types/course";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
 
@@ -51,7 +50,7 @@ export default function CoursesIndex() {
             }
         }
         fetchCourses()
-    },[])
+    }, [searchText, categoriesFilter, difficultyFilter])
 
     const handleApplyFilters = async (categories?: number[], difficulty?: string[], searchText?: string) => {
         setCategoriesFilter(categories || []);
@@ -59,7 +58,7 @@ export default function CoursesIndex() {
         setSearchText(searchText?.toLowerCase() ?? null);
     }
     return (
-        <main className="flex-1 px-6 sm:px-10 lg:px-20 py-10">
+        <main className="flex-1 px-6 sm:px-10 lg:px-20 py-10 bg-white dark:bg-background-dark">
             <div className="mx-auto max-w-7xl">
                 <div className="flex flex-col lg:flex-row gap-8">
 
@@ -69,25 +68,27 @@ export default function CoursesIndex() {
                     {/* Main Content */}
                     <div className="flex-1">
                         <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
-                            <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+                            <h1 className="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
                                 Explore Our Courses
                             </h1>
-                            {(role === 'admin' || role == 'tester') &&
+
+                            {(role === "admin" || role === "tester") && (
                                 <Link
-                                    to={'/admin/course/create'}
+                                    to={"/admin/course/create"}
                                     className="mt-4 flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
                                 >
                                     <span className="truncate">Add New Course</span>
                                 </Link>
-                            }
+                            )}
                         </div>
 
                         <SortChips />
                         <CourseGrid courses={courses} />
-                        <Pagination />
+                        {/* <Pagination /> */}
                     </div>
                 </div>
             </div>
         </main>
+
     );
 }
